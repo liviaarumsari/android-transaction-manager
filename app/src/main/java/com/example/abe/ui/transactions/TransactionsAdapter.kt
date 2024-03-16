@@ -1,0 +1,74 @@
+package com.example.abe.ui.transactions
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.recyclerview.widget.RecyclerView
+import com.example.abe.R
+import com.example.abe.data.Transaction
+import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Currency
+import java.util.Locale
+
+class TransactionsAdapter(
+    var transactions: List<Transaction>
+): RecyclerView.Adapter<TransactionsAdapter.TransactionViewHolder>() {
+    inner class TransactionViewHolder(view: View): RecyclerView.ViewHolder(view) {
+        val clImageContainer: ConstraintLayout
+        val ivTrxIcon: ImageView
+
+        val tvTrxTitle: TextView
+        val tvLocation: TextView
+        val tvDate: TextView
+        val tvAmount: TextView
+
+        init {
+            clImageContainer = view.findViewById(R.id.clImageContainer)
+            ivTrxIcon = view.findViewById(R.id.ivTrxIcon)
+
+            tvTrxTitle = view.findViewById(R.id.tvTrxTitle)
+            tvLocation = view.findViewById(R.id.tvLocation)
+            tvDate = view.findViewById(R.id.tvDate)
+            tvAmount = view.findViewById(R.id.tvAmount)
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_transaction_row_item, parent, false)
+        return TransactionViewHolder(view)
+    }
+
+    override fun getItemCount(): Int {
+        return transactions.size
+    }
+
+    override fun onBindViewHolder(holder: TransactionViewHolder, position: Int) {
+        with(holder) {
+//            TODO Set color from theme
+//            clImageContainer.background =
+            val trx = transactions[position]
+
+            if (!trx.isExpense)
+                ivTrxIcon.setImageResource(R.drawable.ic_circle_arrow_up)
+
+            tvTrxTitle.text = trx.title
+//            TODO location
+//            tvLocation.text = trx.
+
+            tvDate.text = SimpleDateFormat("d MMM yyyy" , Locale.ENGLISH).format(trx.timestamp)
+
+            val numberFormat = NumberFormat.getCurrencyInstance()
+            numberFormat.setMaximumFractionDigits(0)
+            numberFormat.currency = Currency.getInstance("IDR")
+
+            val amountText = (if (trx.amount > 0) "+" else "-") + numberFormat.format(trx.amount).toString()
+            tvAmount.text = amountText
+        }
+    }
+
+
+}

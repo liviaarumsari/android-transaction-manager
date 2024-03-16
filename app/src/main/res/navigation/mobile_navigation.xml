@@ -8,19 +8,22 @@
 <!--   Fill in name & layout when done-->
     <fragment
         android:id="@+id/navigation_transactions"
-        android:label="Transactions" />
+        android:label="Transactions"
+        android:name="com.example.abe.ui.transactions.TransactionFragment"
+        tools:layout="@layout/fragment_transactions"
+        />
 
-    <fragment
-        android:id="@+id/navigation_scan"
-        android:label="Scan" />
+<!--    <fragment-->
+<!--        android:id="@+id/navigation_scan"-->
+<!--        android:label="Scan" />-->
 
-    <fragment
-        android:id="@+id/navigation_graph"
-        android:label="Graph" />
+<!--    <fragment-->
+<!--        android:id="@+id/navigation_graph"-->
+<!--        android:label="Graph" />-->
 
-    <fragment
-        android:id="@+id/navigation_settings"
-        android:label="Settings" />
+<!--    <fragment-->
+<!--        android:id="@+id/navigation_settings"-->
+<!--        android:label="Settings" />-->
 
 <!--    Example when fragment & layout is done-->
 <!--    <fragment-->

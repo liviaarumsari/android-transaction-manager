@@ -11,7 +11,7 @@ data class Transaction (
     val email: String,
     val title: String,
     val amount: Int,
-    val category: String,
+    val isExpense: Boolean,
     val timestamp: Date
 //    val location: String,
 )
