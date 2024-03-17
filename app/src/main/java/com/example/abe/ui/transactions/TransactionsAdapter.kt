@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.abe.R
 import com.example.abe.data.Transaction
@@ -14,10 +16,8 @@ import java.text.SimpleDateFormat
 import java.util.Currency
 import java.util.Locale
 
-class TransactionsAdapter(
-    var transactions: List<Transaction>
-): RecyclerView.Adapter<TransactionsAdapter.TransactionViewHolder>() {
-    inner class TransactionViewHolder(view: View): RecyclerView.ViewHolder(view) {
+class TransactionsAdapter: ListAdapter<Transaction, TransactionsAdapter.TransactionViewHolder>(TransactionComparator()) {
+    class TransactionViewHolder(view: View): RecyclerView.ViewHolder(view) {
         val clImageContainer: ConstraintLayout
         val ivTrxIcon: ImageView
 
@@ -37,20 +37,26 @@ class TransactionsAdapter(
         }
     }
 
+    class TransactionComparator: DiffUtil.ItemCallback<Transaction>() {
+        override fun areItemsTheSame(oldItem: Transaction, newItem: Transaction): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: Transaction, newItem: Transaction): Boolean {
+            return oldItem == newItem
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_transaction_row_item, parent, false)
         return TransactionViewHolder(view)
-    }
-
-    override fun getItemCount(): Int {
-        return transactions.size
     }
 
     override fun onBindViewHolder(holder: TransactionViewHolder, position: Int) {
         with(holder) {
 //            TODO Set color from theme
 //            clImageContainer.background =
-            val trx = transactions[position]
+            val trx = getItem(position)
 
             if (!trx.isExpense)
                 ivTrxIcon.setImageResource(R.drawable.ic_circle_arrow_up)
@@ -65,10 +71,8 @@ class TransactionsAdapter(
             numberFormat.setMaximumFractionDigits(0)
             numberFormat.currency = Currency.getInstance("IDR")
 
-            val amountText = (if (trx.amount > 0) "+" else "-") + numberFormat.format(trx.amount).toString()
+            val amountText = (if (trx.isExpense) "-" else "+") + numberFormat.format(trx.amount).toString()
             tvAmount.text = amountText
         }
     }
-
-
 }
