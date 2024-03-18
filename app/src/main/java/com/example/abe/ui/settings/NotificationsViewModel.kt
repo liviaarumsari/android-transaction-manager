@@ -1,4 +1,4 @@
-package com.example.abe.ui.notifications
+package com.example.abe.ui.settings
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
