@@ -1,5 +1,6 @@
 package com.example.abe.ui.transactions
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.abe.ABEApplication
 import com.example.abe.data.Transaction
 import com.example.abe.databinding.FragmentTransactionsBinding
+import com.example.abe.ui.add_transaction.FormTransaction
 import java.util.Date
 
 class TransactionFragment : Fragment() {
@@ -55,6 +57,11 @@ class TransactionFragment : Fragment() {
                 Log.d("ABE-TRX", it.toString())
                 transactionsAdapter.submitList(it)
             }
+        }
+
+        binding.addTransactionBtn.setOnClickListener {
+            val intent = Intent(requireContext(), FormTransaction::class.java)
+            startActivity(intent)
         }
 
         return binding.root
