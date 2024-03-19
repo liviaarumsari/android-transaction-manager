@@ -1,10 +1,13 @@
 package com.example.abe.ui.transactions
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,10 +15,12 @@ import com.example.abe.ABEApplication
 import com.example.abe.data.Transaction
 import com.example.abe.databinding.FragmentTransactionsBinding
 import java.util.Date
+import java.util.UUID
 
 class TransactionFragment : Fragment() {
 
     private var _binding: FragmentTransactionsBinding? = null
+    private val CREATE_FILE = 1
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -39,25 +44,35 @@ class TransactionFragment : Fragment() {
     ): View {
         _binding = FragmentTransactionsBinding.inflate(inflater, container, false)
 
-//        val transactions = mutableListOf<Transaction>(
-//            Transaction(1, "a@gmail.com", "food", 1000, false, Date()),
-//            Transaction(2, "a@gmail.com", "food", 2000, false, Date()),
-//            Transaction(3, "a@gmail.com", "food", 3000, true, Date()),
-//            Transaction(4, "a@gmail.com", "food", 4000, false, Date()),
-//            Transaction(5, "a@gmail.com", "food", 5000, false, Date())
-//        )
         val transactionsAdapter = TransactionsAdapter()
         binding.rvTransactions.adapter = transactionsAdapter
         binding.rvTransactions.layoutManager = LinearLayoutManager(context)
 
         viewModel.allTransactions.observe(viewLifecycleOwner) {transactions ->
             transactions?.let {
-                Log.d("ABE-TRX", it.toString())
                 transactionsAdapter.submitList(it)
             }
         }
 
+        binding.fabExport.setOnClickListener {
+            Log.d("ABE-EXPORT", "Launching intent")
+            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                setType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                putExtra(Intent.EXTRA_TITLE, viewModel.getExportFileName())
+            }
+            resultLauncher.launch(intent)
+        }
         return binding.root
+    }
+
+    private var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data: Intent? = result.data
+            data?.data?.also {uri ->
+                viewModel.exportTransactionsToExcel(requireActivity().applicationContext.contentResolver, uri)
+            }
+        }
     }
 
     override fun onDestroyView() {

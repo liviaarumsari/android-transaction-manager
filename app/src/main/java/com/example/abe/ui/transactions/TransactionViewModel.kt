@@ -1,6 +1,8 @@
 package com.example.abe.ui.transactions
 
 import android.app.Application
+import android.content.ContentResolver
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -9,14 +11,48 @@ import com.example.abe.data.Transaction
 import com.example.abe.data.TransactionDAO
 import com.example.abe.data.TransactionDatabase
 import com.example.abe.data.TransactionRepository
+import com.example.abe.domain.FormatCurrencyUseCase
+import com.example.abe.domain.GenerateExcelUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.net.URI
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class TransactionViewModel(private val transactionRepository: TransactionRepository) : ViewModel() {
     val allTransactions = transactionRepository.allTransaction
 
     fun insertTransaction(transaction: Transaction) = viewModelScope.launch(Dispatchers.IO) {
         transactionRepository.insert(transaction)
+    }
+
+    fun getExportFileName(): String {
+        val date = SimpleDateFormat("yyyy-MM-dd_hh:mm:ss" , Locale.ENGLISH).format(Date())
+        return "Daftar-Transaksi_$date"
+    }
+    fun exportTransactionsToExcel(contentResolver: ContentResolver, uri: Uri) {
+        val headerList = listOf("ID Transaksi", "Email", "Judul", "Nominal", "Pengeluaran", "Waktu Transasksi")
+        val transactions = transactionRepository.allTransaction.value
+        val dataList = mutableListOf<List<String>>()
+        val currencyFormatter = FormatCurrencyUseCase()
+
+        if (transactions != null) {
+            for (trx in transactions) {
+                val rowData = listOf<String>(
+                    trx.id.toString(),
+                    trx.email,
+                    trx.title,
+                    currencyFormatter(trx.amount),
+                    if (trx.isExpense) "Ya" else "Tidak",
+                    SimpleDateFormat("d MMM yyyy" , Locale.ENGLISH).format(trx.timestamp)
+                )
+                dataList.add(rowData)
+            }
+        }
+
+        val generateExcel = GenerateExcelUseCase(contentResolver,  uri, "Transaksi", headerList, dataList)
+        generateExcel()
     }
 }
 

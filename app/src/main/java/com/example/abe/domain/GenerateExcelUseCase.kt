@@ -1,0 +1,90 @@
+package com.example.abe.domain
+
+import android.content.ContentResolver
+import android.net.Uri
+import android.util.Log
+import org.apache.poi.ss.usermodel.CellStyle
+import org.apache.poi.ss.usermodel.FillPatternType
+import org.apache.poi.ss.usermodel.IndexedColors
+import org.apache.poi.ss.usermodel.Row
+import org.apache.poi.ss.usermodel.Sheet
+import org.apache.poi.ss.usermodel.Workbook
+import org.apache.poi.xssf.usermodel.IndexedColorMap
+import org.apache.poi.xssf.usermodel.XSSFColor
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import java.io.File
+import java.io.FileOutputStream
+import java.net.URI
+import kotlin.io.path.toPath
+
+class GenerateExcelUseCase(
+    private val contentResolver: ContentResolver,
+    private val uri: Uri,
+    private val sheetName: String,
+    private val headerList: List<String>,
+    private val dataList: List<List<String>>
+) {
+    operator fun invoke() {
+        val workbook = createWorkbook()
+
+        try {
+            val outputStream = contentResolver.openOutputStream(uri)
+            workbook.write(outputStream)
+            outputStream?.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun createWorkbook(): Workbook {
+        val workbook = XSSFWorkbook()
+        val sheet: Sheet = workbook.createSheet(sheetName)
+
+        val cellStyle = getHeaderStyle(workbook)
+        createSheetHeader(cellStyle, sheet)
+        addData(1, sheet)
+
+        return workbook
+    }
+
+    private fun createSheetHeader(cellStyle: CellStyle, sheet: Sheet) {
+        val row = sheet.createRow(0)
+
+        for ((index, value) in headerList.withIndex()) {
+            val columnWidth = (15 * 500)
+            sheet.setColumnWidth(index, columnWidth)
+
+            val cell = row.createCell(index)
+            cell?.setCellValue(value)
+            cell.cellStyle = cellStyle
+        }
+    }
+
+    private fun getHeaderStyle(workbook: Workbook): CellStyle {
+        val cellStyle: CellStyle = workbook.createCellStyle()
+
+        val colorMap: IndexedColorMap = (workbook as XSSFWorkbook).stylesSource.indexedColors
+        var color = XSSFColor(IndexedColors.LIGHT_CORNFLOWER_BLUE, colorMap).indexed
+        cellStyle.fillForegroundColor = color
+        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND)
+
+
+        return cellStyle
+    }
+
+
+    private fun addData(initialRowIndex: Int, sheet: Sheet) {
+        for ((rowIndex, rowList) in dataList.withIndex()) {
+            val row = sheet.createRow(rowIndex + initialRowIndex)
+
+            for ((colIndex, cellData) in rowList.withIndex()) {
+                createCell(row, colIndex, cellData)
+            }
+         }
+    }
+
+    private fun createCell(row: Row, columnIndex: Int, value: String?) {
+        val cell = row.createCell(columnIndex)
+        cell?.setCellValue(value)
+    }
+}
