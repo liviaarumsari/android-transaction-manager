@@ -34,5 +34,53 @@ class FormTransaction : AppCompatActivity() {
             AdapterView.OnItemClickListener { parent, view, position, id ->
                 val item = parent.getItemAtPosition(position).toString()
             }
+        titleFocusListener()
+        amountFocusListener()
+        categoryFocusListener()
+        locationFocusListener()
+    }
+
+    private fun titleFocusListener() {
+        binding.formTitleEditText.setOnFocusChangeListener { _, focused ->
+            if (!focused) {
+                binding.formTitleContainer.helperText =
+                    if (binding.formTitleEditText.text.toString()
+                            .isEmpty()
+                    ) "Title is required" else null;
+            }
+        }
+    }
+
+    private fun amountFocusListener() {
+        binding.formAmountEditText.setOnFocusChangeListener { _, focused ->
+            if (!focused) {
+                binding.formAmountContainer.helperText =
+                    if (binding.formAmountEditText.text.toString()
+                            .isEmpty()
+                    ) "Amount is required" else null;
+            }
+        }
+    }
+
+    private fun categoryFocusListener() {
+        binding.categoryAutocomplete.setOnFocusChangeListener { _, focused ->
+            if (!focused) {
+                binding.formCategoryContainer.helperText =
+                    if (binding.categoryAutocomplete.text.toString()
+                            .isEmpty()
+                    ) "Category is required" else null;
+            }
+        }
+    }
+
+    private fun locationFocusListener() {
+        binding.formLocationEditText.setOnFocusChangeListener { _, focused ->
+            if (!focused) {
+                binding.formLocationContainer.helperText =
+                    if (binding.formLocationEditText.text.toString()
+                            .isEmpty()
+                    ) "Location is required" else null;
+            }
+        }
     }
 }
