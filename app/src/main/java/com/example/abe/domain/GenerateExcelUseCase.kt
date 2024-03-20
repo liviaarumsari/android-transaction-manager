@@ -3,6 +3,9 @@ package com.example.abe.domain
 import android.content.ContentResolver
 import android.net.Uri
 import android.util.Log
+import org.apache.poi.hssf.usermodel.HSSFCellStyle
+import org.apache.poi.hssf.usermodel.HSSFWorkbook
+import org.apache.poi.hssf.util.HSSFColor
 import org.apache.poi.ss.usermodel.CellStyle
 import org.apache.poi.ss.usermodel.FillPatternType
 import org.apache.poi.ss.usermodel.IndexedColors
@@ -18,6 +21,7 @@ import java.net.URI
 import kotlin.io.path.toPath
 
 class GenerateExcelUseCase(
+    private val newFormat: Boolean,
     private val contentResolver: ContentResolver,
     private val uri: Uri,
     private val sheetName: String,
@@ -37,7 +41,7 @@ class GenerateExcelUseCase(
     }
 
     private fun createWorkbook(): Workbook {
-        val workbook = XSSFWorkbook()
+        val workbook = if(newFormat) XSSFWorkbook() else HSSFWorkbook()
         val sheet: Sheet = workbook.createSheet(sheetName)
 
         val cellStyle = getHeaderStyle(workbook)
@@ -47,7 +51,7 @@ class GenerateExcelUseCase(
         return workbook
     }
 
-    private fun createSheetHeader(cellStyle: CellStyle, sheet: Sheet) {
+    private fun createSheetHeader(cellStyle: CellStyle?, sheet: Sheet) {
         val row = sheet.createRow(0)
 
         for ((index, value) in headerList.withIndex()) {
@@ -56,18 +60,19 @@ class GenerateExcelUseCase(
 
             val cell = row.createCell(index)
             cell?.setCellValue(value)
-            cell.cellStyle = cellStyle
+            if (cellStyle != null)
+                cell.cellStyle = cellStyle
         }
     }
 
-    private fun getHeaderStyle(workbook: Workbook): CellStyle {
+    private fun getHeaderStyle(workbook: Workbook): CellStyle? {
+        if (!newFormat) return null
         val cellStyle: CellStyle = workbook.createCellStyle()
 
         val colorMap: IndexedColorMap = (workbook as XSSFWorkbook).stylesSource.indexedColors
         var color = XSSFColor(IndexedColors.LIGHT_CORNFLOWER_BLUE, colorMap).indexed
         cellStyle.fillForegroundColor = color
-        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND)
-
+        cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
 
         return cellStyle
     }

@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -55,24 +56,9 @@ class TransactionFragment : Fragment() {
         }
 
         binding.fabExport.setOnClickListener {
-            Log.d("ABE-EXPORT", "Launching intent")
-            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                setType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                putExtra(Intent.EXTRA_TITLE, viewModel.getExportFileName())
-            }
-            resultLauncher.launch(intent)
+            ExportAlertDialogFragment().show(requireActivity().supportFragmentManager, "EXPORT_DIALOG")
         }
         return binding.root
-    }
-
-    private var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val data: Intent? = result.data
-            data?.data?.also {uri ->
-                viewModel.exportTransactionsToExcel(requireActivity().applicationContext.contentResolver, uri)
-            }
-        }
     }
 
     override fun onDestroyView() {
