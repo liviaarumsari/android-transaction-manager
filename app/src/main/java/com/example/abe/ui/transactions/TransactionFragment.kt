@@ -1,6 +1,5 @@
 package com.example.abe.ui.transactions
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -38,30 +37,20 @@ class TransactionFragment : Fragment() {
         binding.rvTransactions.adapter = transactionsAdapter
         binding.rvTransactions.layoutManager = LinearLayoutManager(context)
 
-        viewModel.allTransactions.observe(viewLifecycleOwner) {transactions ->
+        viewModel.allTransactions.observe(viewLifecycleOwner) { transactions ->
             transactions?.let {
                 transactionsAdapter.submitList(it)
             }
         }
 
         binding.fabExport.setOnClickListener {
-            ExportAlertDialogFragment().show(requireActivity().supportFragmentManager, "EXPORT_DIALOG")
+            ExportAlertDialogFragment.newInstance(ExportAlertDialogTypeEnum.EXPORT)
+                .show(requireActivity().supportFragmentManager, "EXPORT_DIALOG")
         }
 
         binding.fabEmail.setOnClickListener {
-            val contentUri = viewModel.generateExcelInCache(requireActivity().applicationContext)
-
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                putExtra(Intent.EXTRA_EMAIL, arrayOf("13521134@std.stei.itb.ac.id"))
-                putExtra(Intent.EXTRA_SUBJECT, "test subject")
-
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                setDataAndType(contentUri, requireContext().contentResolver.getType(contentUri))
-                putExtra(Intent.EXTRA_STREAM, contentUri)
-            }
-            if (intent.resolveActivity(requireActivity().packageManager) != null) {
-                startActivity(intent)
-            }
+            ExportAlertDialogFragment.newInstance(ExportAlertDialogTypeEnum.SEND_EMAIL)
+                .show(requireActivity().supportFragmentManager, "EXPORT_DIALOG")
         }
 
         return binding.root

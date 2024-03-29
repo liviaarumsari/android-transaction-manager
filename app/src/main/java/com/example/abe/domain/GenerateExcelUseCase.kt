@@ -3,9 +3,9 @@ package com.example.abe.domain
 import android.content.ContentResolver
 import android.net.Uri
 import android.util.Log
-import org.apache.poi.hssf.usermodel.HSSFCellStyle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
-import org.apache.poi.hssf.util.HSSFColor
 import org.apache.poi.ss.usermodel.CellStyle
 import org.apache.poi.ss.usermodel.FillPatternType
 import org.apache.poi.ss.usermodel.IndexedColors
@@ -15,10 +15,6 @@ import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.xssf.usermodel.IndexedColorMap
 import org.apache.poi.xssf.usermodel.XSSFColor
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
-import java.io.File
-import java.io.FileOutputStream
-import java.net.URI
-import kotlin.io.path.toPath
 
 class GenerateExcelUseCase(
     private val newFormat: Boolean,
@@ -28,20 +24,25 @@ class GenerateExcelUseCase(
     private val headerList: List<String>,
     private val dataList: List<List<String>>
 ) {
-    operator fun invoke() {
-        val workbook = createWorkbook()
+    suspend operator fun invoke() {
+        withContext(Dispatchers.Default) {
+            val workbook = createWorkbook()
 
-        try {
-            val outputStream = contentResolver.openOutputStream(uri)
-            workbook.write(outputStream)
-            outputStream?.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
+            withContext(Dispatchers.IO) {
+                try {
+                    val outputStream = contentResolver.openOutputStream(uri)
+                    workbook.write(outputStream)
+                    outputStream?.close()
+                    Log.d("ABE-EXPORT", "Finish writing file")
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
 
     private fun createWorkbook(): Workbook {
-        val workbook = if(newFormat) XSSFWorkbook() else HSSFWorkbook()
+        val workbook = if (newFormat) XSSFWorkbook() else HSSFWorkbook()
         val sheet: Sheet = workbook.createSheet(sheetName)
 
         val cellStyle = getHeaderStyle(workbook)
@@ -70,7 +71,7 @@ class GenerateExcelUseCase(
         val cellStyle: CellStyle = workbook.createCellStyle()
 
         val colorMap: IndexedColorMap = (workbook as XSSFWorkbook).stylesSource.indexedColors
-        var color = XSSFColor(IndexedColors.LIGHT_CORNFLOWER_BLUE, colorMap).indexed
+        val color = XSSFColor(IndexedColors.LIGHT_CORNFLOWER_BLUE, colorMap).indexed
         cellStyle.fillForegroundColor = color
         cellStyle.fillPattern = FillPatternType.SOLID_FOREGROUND
 
@@ -85,7 +86,7 @@ class GenerateExcelUseCase(
             for ((colIndex, cellData) in rowList.withIndex()) {
                 createCell(row, colIndex, cellData)
             }
-         }
+        }
     }
 
     private fun createCell(row: Row, columnIndex: Int, value: String?) {
