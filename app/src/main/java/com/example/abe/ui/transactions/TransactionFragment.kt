@@ -1,27 +1,20 @@
 package com.example.abe.ui.transactions
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.abe.ABEApplication
-import com.example.abe.data.Transaction
 import com.example.abe.databinding.FragmentTransactionsBinding
-import java.util.Date
-import java.util.UUID
+
 
 class TransactionFragment : Fragment() {
 
     private var _binding: FragmentTransactionsBinding? = null
-    private val CREATE_FILE = 1
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -33,10 +26,6 @@ class TransactionFragment : Fragment() {
 
     private val viewModel: TransactionViewModel by viewModels {
         TransactionViewModelFactory((activity?.application as ABEApplication).repository)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(
@@ -58,6 +47,23 @@ class TransactionFragment : Fragment() {
         binding.fabExport.setOnClickListener {
             ExportAlertDialogFragment().show(requireActivity().supportFragmentManager, "EXPORT_DIALOG")
         }
+
+        binding.fabEmail.setOnClickListener {
+            val contentUri = viewModel.generateExcelInCache(requireActivity().applicationContext)
+
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                putExtra(Intent.EXTRA_EMAIL, arrayOf("13521134@std.stei.itb.ac.id"))
+                putExtra(Intent.EXTRA_SUBJECT, "test subject")
+
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                setDataAndType(contentUri, requireContext().contentResolver.getType(contentUri))
+                putExtra(Intent.EXTRA_STREAM, contentUri)
+            }
+            if (intent.resolveActivity(requireActivity().packageManager) != null) {
+                startActivity(intent)
+            }
+        }
+
         return binding.root
     }
 
