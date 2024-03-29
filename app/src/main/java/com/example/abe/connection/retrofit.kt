@@ -1,15 +1,13 @@
-package com.example.abe.data.network
+package com.example.abe.connection
 
+import com.example.abe.services.LoginService
+import com.example.abe.types.LoginRequest
+import com.example.abe.types.LoginResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-
-interface LoginResultCallback {
-    fun onSuccess(loginResponse: LoginResponse)
-    fun onFailure(errorMessage: String)
-}
 
 class CallBack<T> : Callback<T> {
     override fun onResponse(call: Call<T>, response: Response<T>) {
@@ -36,29 +34,19 @@ class CallBack<T> : Callback<T> {
 
 class Retrofit {
 
+    private val url = "https://pbd-backend-2024.vercel.app/"
     private val retrofit = Retrofit.Builder()
-        .baseUrl("https://pbd-backend-2024.vercel.app/")
+        .baseUrl(url)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    fun login(email: String, password: String, callback: LoginResultCallback) {
+    fun Login(email: String, password: String) {
         val loginService = retrofit.create(LoginService::class.java)
-        val call: Call<LoginResponse> = loginService.login(LoginRequest(email, password))
 
-        call.enqueue(object : Callback<LoginResponse> {
-            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        callback.onSuccess(it)
-                    }
-                } else {
-                    callback.onFailure("Login failed")
-                }
-            }
+        val call: Call<LoginResponse> = loginService.login(
+            LoginRequest(email, password)
+        )
 
-            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                callback.onFailure("Failed to send request")
-            }
-        })
+        call.enqueue(CallBack())
     }
 }
