@@ -75,6 +75,10 @@ class FormTransactionViewModel(private val transactionRepository: TransactionRep
     fun deleteTransaction(id: Int) = viewModelScope.launch(Dispatchers.IO) {
         transactionRepository.deleteById(id)
     }
+
+    fun setRandomAmount(randomAmount: Int) {
+        amount.value = randomAmount.toString()
+    }
 }
 
 class FormTransactionViewModelFactory(private val repository: TransactionRepository) :

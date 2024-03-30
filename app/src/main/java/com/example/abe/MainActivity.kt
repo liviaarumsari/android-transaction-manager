@@ -1,13 +1,16 @@
 package com.example.abe
 
 import android.app.Activity
+import android.content.BroadcastReceiver
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -26,6 +29,9 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         MainActivityViewModelFactory((application as ABEApplication).repository)
     }
 
+    private val filter = IntentFilter().apply { addAction("RANDOMIZE_TRANSACTION") }
+    private val br: BroadcastReceiver = TransactionBroadcastReceiver()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -43,6 +49,8 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(br, filter)
     }
 
     override fun onNewExcelFormatClick(dialog: DialogFragment, type: ExportAlertDialogTypeEnum) {
@@ -108,4 +116,9 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
                 }
             }
         }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        LocalBroadcastManager.getInstance(this).registerReceiver(br, filter)
+    }
 }

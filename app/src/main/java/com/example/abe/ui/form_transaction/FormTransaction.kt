@@ -68,6 +68,10 @@ class FormTransaction : AppCompatActivity() {
             binding.btnDelete.visibility = View.GONE
         }
 
+        if (intent.hasExtra("random_amount")) {
+            viewModel.setRandomAmount(intent.getIntExtra("random_amount", 10000))
+        }
+
         val categories = resources.getStringArray(R.array.Categories)
         val adapterItems = ArrayAdapter<String>(this, R.layout.list_item, categories)
         binding.categoryAutocomplete.setAdapter(adapterItems)
@@ -87,7 +91,6 @@ class FormTransaction : AppCompatActivity() {
 
         val sharedPref = getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         user = sharedPref.getString("user", "").toString()
-
     }
 
     private fun titleFocusListener() {
