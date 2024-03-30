@@ -49,6 +49,8 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.poi)
+    implementation(libs.poi.ooxml)
     implementation(libs.androidx.activity)
     annotationProcessor(libs.androidx.room.compiler)
     kapt(libs.androidx.room.compiler)

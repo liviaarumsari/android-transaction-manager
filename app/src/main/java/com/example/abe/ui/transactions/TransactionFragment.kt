@@ -2,7 +2,6 @@ package com.example.abe.ui.transactions
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +9,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.abe.ABEApplication
-import com.example.abe.data.Transaction
 import com.example.abe.databinding.FragmentTransactionsBinding
 import com.example.abe.ui.add_transaction.FormTransaction
 import java.util.Date
+
 
 class TransactionFragment : Fragment() {
 
@@ -31,32 +30,30 @@ class TransactionFragment : Fragment() {
         TransactionViewModelFactory((activity?.application as ABEApplication).repository)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTransactionsBinding.inflate(inflater, container, false)
 
-//        val transactions = mutableListOf<Transaction>(
-//            Transaction(1, "a@gmail.com", "food", 1000, false, Date()),
-//            Transaction(2, "a@gmail.com", "food", 2000, false, Date()),
-//            Transaction(3, "a@gmail.com", "food", 3000, true, Date()),
-//            Transaction(4, "a@gmail.com", "food", 4000, false, Date()),
-//            Transaction(5, "a@gmail.com", "food", 5000, false, Date())
-//        )
         val transactionsAdapter = TransactionsAdapter()
         binding.rvTransactions.adapter = transactionsAdapter
         binding.rvTransactions.layoutManager = LinearLayoutManager(context)
 
-        viewModel.allTransactions.observe(viewLifecycleOwner) {transactions ->
+        viewModel.allTransactions.observe(viewLifecycleOwner) { transactions ->
             transactions?.let {
-                Log.d("ABE-TRX", it.toString())
                 transactionsAdapter.submitList(it)
             }
+        }
+
+        binding.fabExport.setOnClickListener {
+            ExportAlertDialogFragment.newInstance(ExportAlertDialogTypeEnum.EXPORT)
+                .show(requireActivity().supportFragmentManager, "EXPORT_DIALOG")
+        }
+
+        binding.fabEmail.setOnClickListener {
+            ExportAlertDialogFragment.newInstance(ExportAlertDialogTypeEnum.SEND_EMAIL)
+                .show(requireActivity().supportFragmentManager, "EXPORT_DIALOG")
         }
 
         binding.addTransactionBtn.setOnClickListener {

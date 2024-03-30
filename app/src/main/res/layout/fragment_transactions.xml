@@ -16,6 +16,28 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabExport"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="68dp"
+        android:layout_marginBottom="100dp"
+        android:backgroundTint="@android:color/holo_purple"
+        android:src="@drawable/ic_transactions"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="68dp"
+        android:layout_marginBottom="100dp"
+        android:backgroundTint="@android:color/holo_purple"
+        android:src="@drawable/ic_scan"
+        app:layout_constraintBottom_toBottomOf="@+id/rvTransactions"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addTransactionBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
