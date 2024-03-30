@@ -19,7 +19,7 @@
         android:theme="@style/Theme.ABE"
         tools:targetApi="31">
         <activity
-            android:name=".ui.add_transaction.FormTransaction"
+            android:name=".ui.form_transaction.FormTransaction"
             android:exported="false"
             android:label="Add Transaction"
             android:parentActivityName=".MainActivity"/>

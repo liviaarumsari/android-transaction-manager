@@ -1,4 +1,4 @@
-package com.example.abe.ui.add_transaction
+package com.example.abe.ui.form_transaction
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -21,7 +21,7 @@ class FormTransactionViewModel(private val transactionRepository: TransactionRep
     fun insertTransaction() = viewModelScope.launch(Dispatchers.IO) {
         val transaction = Transaction(
             id = 0,
-            email = "example@example.com",
+            email = "a@gmail.com",
             title = title.value!!,
             amount = amount.value!!,
             isExpense = category.value == "Expense",
@@ -31,6 +31,20 @@ class FormTransactionViewModel(private val transactionRepository: TransactionRep
             location = location.value!!,
         )
         transactionRepository.insert(transaction)
+    }
+
+    fun getTransaction(id: Int) = viewModelScope.launch(Dispatchers.IO) {
+        val transaction = transactionRepository.getById(id)
+        title.value = transaction.title
+        amount.value = transaction.amount
+        category.value = if (transaction.isExpense) "Expense" else "Income"
+        latitude.value = transaction.latitude
+        longitude.value = transaction.longitude
+        location.value = transaction.location
+    }
+
+    fun deleteTransaction(id: Int) = viewModelScope.launch(Dispatchers.IO) {
+        transactionRepository.deleteById(id)
     }
 }
 

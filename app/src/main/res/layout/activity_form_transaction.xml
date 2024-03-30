@@ -5,13 +5,13 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.abe.ui.add_transaction.FormTransactionViewModel" />
+            type="com.example.abe.ui.form_transaction.FormTransactionViewModel" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.add_transaction.FormTransaction">
+        tools:context=".ui.form_transaction.FormTransaction">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/formTitleContainer"
