@@ -5,6 +5,7 @@
     <string name="title_notifications">Notifications</string>
     <string name="title">Title</string>
     <string name="add_transaction">Add Transaction</string>
+    <string name="amount">Amount</string>
 
     <string-array name="Categories">
         <item>Income</item>

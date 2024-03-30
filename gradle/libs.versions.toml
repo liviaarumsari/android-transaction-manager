@@ -21,6 +21,7 @@ roomKtx = "2.6.1"
 poi = "5.2.5"
 poiOoxml = "5.2.5"
 activity = "1.8.0"
+playServicesLocation = "21.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,6 +44,7 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 poi = { group = "org.apache.poi", name = "poi", version.ref = "poi" }
 poi-ooxml = { group = "org.apache.poi", name = "poi-ooxml", version.ref = "poiOoxml" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
