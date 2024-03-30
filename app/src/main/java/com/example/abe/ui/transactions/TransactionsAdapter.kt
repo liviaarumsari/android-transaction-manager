@@ -1,5 +1,7 @@
 package com.example.abe.ui.transactions
 
+import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,13 +14,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.abe.R
 import com.example.abe.data.Transaction
 import com.example.abe.domain.FormatCurrencyUseCase
+import com.example.abe.ui.add_transaction.FormTransaction
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Currency
 import java.util.Locale
 
 class TransactionsAdapter: ListAdapter<Transaction, TransactionsAdapter.TransactionViewHolder>(TransactionComparator()) {
-    class TransactionViewHolder(view: View): RecyclerView.ViewHolder(view) {
+    class TransactionViewHolder(val view: View): RecyclerView.ViewHolder(view) {
         val clImageContainer: ConstraintLayout
         val ivTrxIcon: ImageView
 
@@ -64,13 +67,19 @@ class TransactionsAdapter: ListAdapter<Transaction, TransactionsAdapter.Transact
 
             tvTrxTitle.text = trx.title
 //            TODO location
-//            tvLocation.text = trx.
+            tvLocation.text = trx.location
 
             tvDate.text = SimpleDateFormat("d MMM yyyy" , Locale.ENGLISH).format(trx.timestamp)
 
             val currencyFormatter = FormatCurrencyUseCase()
             val amountText = (if (trx.isExpense) "-" else "+") + currencyFormatter(trx.amount)
             tvAmount.text = amountText
+
+            view.setOnClickListener {
+                val intent = Intent(it.context, FormTransaction::class.java)
+                intent.putExtra("id", trx.id.toString())
+                it.context.startActivity(intent)
+            }
         }
     }
 }
