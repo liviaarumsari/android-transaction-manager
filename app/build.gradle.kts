@@ -50,6 +50,8 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.retrofit)
+    implementation(libs.androidx.retrofit.gson)
     implementation(libs.poi)
     implementation(libs.poi.ooxml)
     implementation(libs.androidx.activity)
