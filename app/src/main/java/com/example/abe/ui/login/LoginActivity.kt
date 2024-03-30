@@ -44,6 +44,8 @@ class LoginActivity : AppCompatActivity(), LoginResultCallback {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
 
+        supportActionBar?.hide()
+
         val view = binding.root
         setContentView(view)
 
