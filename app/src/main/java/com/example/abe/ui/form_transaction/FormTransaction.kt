@@ -22,7 +22,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.Observer
 import com.example.abe.ABEApplication
 import com.example.abe.R
 import com.example.abe.databinding.ActivityFormTransactionBinding
@@ -38,6 +37,8 @@ class FormTransaction : AppCompatActivity() {
     private val viewModel: FormTransactionViewModel by viewModels {
         FormTransactionViewModelFactory((this.application as ABEApplication).repository)
     }
+
+    private lateinit var user:String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +84,9 @@ class FormTransaction : AppCompatActivity() {
         deleteButtonListener()
 
         getLocation()
+
+        val sharedPref = getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        user = sharedPref.getString("user", "").toString()
 
     }
 
@@ -141,7 +145,7 @@ class FormTransaction : AppCompatActivity() {
                     intent.getStringExtra("id")?.let { viewModel.updateTransaction(it.toInt()) }
                 }
                 else {
-                    viewModel.insertTransaction()
+                    viewModel.insertTransaction(user)
                 }
                 finish()
             }
