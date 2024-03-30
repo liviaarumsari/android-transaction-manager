@@ -1,5 +1,6 @@
 package com.example.abe.ui.transactions
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.abe.ABEApplication
 import com.example.abe.databinding.FragmentTransactionsBinding
+import com.example.abe.ui.form_transaction.FormTransaction
 
 
 class TransactionFragment : Fragment() {
@@ -51,6 +53,11 @@ class TransactionFragment : Fragment() {
         binding.fabEmail.setOnClickListener {
             ExportAlertDialogFragment.newInstance(ExportAlertDialogTypeEnum.SEND_EMAIL)
                 .show(requireActivity().supportFragmentManager, "EXPORT_DIALOG")
+        }
+
+        binding.addTransactionBtn.setOnClickListener {
+            val intent = Intent(requireContext(), FormTransaction::class.java)
+            startActivity(intent)
         }
 
         return binding.root

@@ -33,6 +33,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        dataBinding = true
     }
 }
 
@@ -53,6 +54,8 @@ dependencies {
     implementation(libs.androidx.retrofit.gson)
     implementation(libs.poi)
     implementation(libs.poi.ooxml)
+    implementation(libs.androidx.activity)
+    implementation(libs.play.services.location)
     annotationProcessor(libs.androidx.room.compiler)
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.legacy.support.v4)

@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:name=".ABEApplication"
@@ -15,7 +18,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ABE"
         tools:targetApi="31">
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".ui.form_transaction.FormTransaction"
+            android:exported="false"
+            android:label="Add Transaction"
+            android:parentActivityName=".MainActivity"/>
+        <activity
+            android:name=".MainActivity"
             android:exported="true">
         </activity>
         <activity
