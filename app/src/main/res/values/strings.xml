@@ -6,6 +6,8 @@
     <string name="title">Title</string>
     <string name="add_transaction">Add Transaction</string>
     <string name="amount">Amount</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
 
     <string-array name="Categories">
         <item>Income</item>

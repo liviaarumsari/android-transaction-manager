@@ -12,6 +12,7 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -21,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Observer
 import com.example.abe.ABEApplication
 import com.example.abe.R
 import com.example.abe.databinding.ActivityFormTransactionBinding
@@ -45,6 +47,8 @@ class FormTransaction : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.viewModel = viewModel
+        binding.lifecycleOwner = this
+        viewModel.amountNumber.observe(this, {})
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -54,6 +58,14 @@ class FormTransaction : AppCompatActivity() {
             insets
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        if (intent.hasExtra("id")) {
+            intent.getStringExtra("id")?.let { viewModel.getTransaction(it.toInt()) }
+            binding.categoryAutocomplete.isEnabled = false
+        }
+        else {
+            binding.btnDelete.visibility = View.GONE
+        }
 
         val categories = resources.getStringArray(R.array.Categories)
         val adapterItems = ArrayAdapter<String>(this, R.layout.list_item, categories)
@@ -68,8 +80,10 @@ class FormTransaction : AppCompatActivity() {
         locationFocusListener()
 
         saveButtonListener()
+        deleteButtonListener()
 
         getLocation()
+
     }
 
     private fun titleFocusListener() {
@@ -123,8 +137,21 @@ class FormTransaction : AppCompatActivity() {
                     .isNotEmpty() && binding.categoryAutocomplete.text.toString()
                     .isNotEmpty() && binding.formLocationEditText.text.toString().isNotEmpty()
             ) {
-                viewModel.insertTransaction()
+                if (intent.hasExtra("id")) {
+                    intent.getStringExtra("id")?.let { viewModel.updateTransaction(it.toInt()) }
+                }
+                else {
+                    viewModel.insertTransaction()
+                }
+                finish()
             }
+        }
+    }
+
+    private fun deleteButtonListener() {
+        binding.btnDelete.setOnClickListener {
+            intent.getStringExtra("id")?.let { viewModel.deleteTransaction(it.toInt()) }
+            finish()
         }
     }
 
