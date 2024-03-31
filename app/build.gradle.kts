@@ -56,6 +56,8 @@ dependencies {
     implementation(libs.camera.core)
     implementation(libs.camera.lifecycle)
     implementation(libs.camera.view)
+    implementation(libs.glide)
+    annotationProcessor(libs.glideCompiler)
     annotationProcessor(libs.androidx.room.compiler)
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.legacy.support.v4)

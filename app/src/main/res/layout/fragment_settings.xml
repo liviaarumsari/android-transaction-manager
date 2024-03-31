@@ -20,8 +20,8 @@
 
         <ImageView
             android:id="@+id/Save"
-            android:layout_width="26dp"
-            android:layout_height="26dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_marginStart="24dp"
             android:src="@android:drawable/ic_menu_save"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -34,6 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="Save transaction"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="@+id/Save"
             app:layout_constraintStart_toEndOf="@+id/Save"
             app:layout_constraintTop_toTopOf="@+id/Save" />
@@ -52,7 +53,7 @@
 
         <ImageView
             android:id="@+id/Send"
-            android:layout_width="26dp"
+            android:layout_width="32dp"
             android:layout_height="26dp"
             android:layout_marginStart="24dp"
             android:src="@android:drawable/ic_menu_send"
@@ -66,6 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="Send transaction"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="@+id/Send"
             app:layout_constraintStart_toEndOf="@+id/Send"
             app:layout_constraintTop_toTopOf="@+id/Send" />
@@ -83,8 +85,8 @@
 
         <ImageView
             android:id="@+id/Randomize"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:layout_marginStart="24dp"
             android:src="@drawable/ic_randomize"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -97,6 +99,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="Randomize transaction"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="@+id/Randomize"
             app:layout_constraintStart_toEndOf="@+id/Randomize"
             app:layout_constraintTop_toTopOf="@+id/Randomize" />
@@ -114,8 +117,8 @@
 
         <ImageView
             android:id="@+id/Logout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="28dp"
+            android:layout_height="30dp"
             android:layout_marginStart="24dp"
             android:src="@drawable/ic_logout"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -128,6 +131,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="Logout"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="@+id/Logout"
             app:layout_constraintStart_toEndOf="@+id/Logout"
             app:layout_constraintTop_toTopOf="@+id/Logout" />
