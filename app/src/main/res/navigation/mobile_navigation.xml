@@ -13,6 +13,13 @@
         tools:layout="@layout/fragment_transactions"
         />
 
+    <fragment
+        android:id="@+id/navigation_form_transaction"
+        android:label="Add Transaction"
+        android:name="com.example.abe.ui.form_transaction.FormTransaction"
+        tools:layout="@layout/fragment_form_transaction"
+        />
+
 <!--    <fragment-->
 <!--        android:id="@+id/navigation_scan"-->
 <!--        android:label="Scan" />-->

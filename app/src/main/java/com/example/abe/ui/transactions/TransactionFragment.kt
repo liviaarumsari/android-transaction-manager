@@ -1,5 +1,6 @@
 package com.example.abe.ui.transactions
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,12 +12,14 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.abe.ABEApplication
 import com.example.abe.databinding.FragmentTransactionsBinding
+import com.example.abe.types.FragmentListener
 import com.example.abe.ui.form_transaction.FormTransaction
 
 
 class TransactionFragment : Fragment() {
 
     private var _binding: FragmentTransactionsBinding? = null
+    private lateinit var listener: ItemClickListener
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -24,6 +27,10 @@ class TransactionFragment : Fragment() {
 
     companion object {
         fun newInstance() = TransactionFragment()
+    }
+
+    interface ItemClickListener {
+        fun onItemClicked(id: Int)
     }
 
     private val viewModel: TransactionViewModel by viewModels {
@@ -36,7 +43,7 @@ class TransactionFragment : Fragment() {
     ): View {
         _binding = FragmentTransactionsBinding.inflate(inflater, container, false)
 
-        val transactionsAdapter = TransactionsAdapter()
+        val transactionsAdapter = TransactionsAdapter(listener)
         binding.rvTransactions.adapter = transactionsAdapter
         binding.rvTransactions.layoutManager = LinearLayoutManager(context)
 
@@ -65,11 +72,17 @@ class TransactionFragment : Fragment() {
         }
 
         binding.addTransactionBtn.setOnClickListener {
-            val intent = Intent(requireContext(), FormTransaction::class.java)
-            startActivity(intent)
+            (activity as FragmentListener).onIntentReceived("OPEN_FORM", "")
         }
 
         return binding.root
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is ItemClickListener) {
+            listener = context
+        }
     }
 
     override fun onDestroyView() {

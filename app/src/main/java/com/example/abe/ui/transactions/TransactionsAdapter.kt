@@ -17,7 +17,7 @@ import com.example.abe.ui.form_transaction.FormTransaction
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class TransactionsAdapter: ListAdapter<Transaction, TransactionsAdapter.TransactionViewHolder>(TransactionComparator()) {
+class TransactionsAdapter(private val itemClickListener: TransactionFragment.ItemClickListener): ListAdapter<Transaction, TransactionsAdapter.TransactionViewHolder>(TransactionComparator()) {
     class TransactionViewHolder(val view: View): RecyclerView.ViewHolder(view) {
         val clImageContainer: ConstraintLayout
         val ivTrxIcon: ImageView
@@ -73,9 +73,10 @@ class TransactionsAdapter: ListAdapter<Transaction, TransactionsAdapter.Transact
             tvAmount.text = amountText
 
             view.setOnClickListener {
-                val intent = Intent(it.context, FormTransaction::class.java)
-                intent.putExtra("id", trx.id.toString())
-                it.context.startActivity(intent)
+//                val intent = Intent(it.context, FormTransaction::class.java)
+//                intent.putExtra("id", trx.id.toString())
+//                it.context.startActivity(intent)
+                itemClickListener.onItemClicked(trx.id)
             }
         }
     }

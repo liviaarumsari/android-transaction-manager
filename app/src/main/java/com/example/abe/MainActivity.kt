@@ -16,13 +16,16 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.abe.databinding.ActivityMainBinding
+import com.example.abe.types.FragmentListener
+import com.example.abe.ui.form_transaction.FormTransaction
 import com.example.abe.ui.transactions.ExportAlertDialogFragment
 import com.example.abe.ui.transactions.ExportAlertDialogTypeEnum
 import com.example.abe.ui.transactions.ExportLoadDialogFragment
+import com.example.abe.ui.transactions.TransactionFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertDialogListener {
+class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertDialogListener, FragmentListener, TransactionFragment.ItemClickListener {
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainActivityViewModel by viewModels {
@@ -53,6 +56,25 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         LocalBroadcastManager.getInstance(this).registerReceiver(br, filter)
     }
 
+    override fun onIntentReceived(action: String, info: String?) {
+        val navController = findNavController(R.id.nav_host_fragment_activity_main)
+        when(action) {
+            "OPEN_FORM" -> {
+                navController.navigate(R.id.navigation_form_transaction)
+            }
+        }
+    }
+
+    override fun onItemClicked(id: Int) {
+        val navController = findNavController(R.id.nav_host_fragment_activity_main)
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.navigation_form_transaction) {
+                val fragment = supportFragmentManager.findFragmentById(R.id.navigation_form_transaction) as? FormTransaction
+                fragment?.displayTrx(id)
+            }
+        }
+        navController.navigate(R.id.navigation_form_transaction)
+    }
     override fun onNewExcelFormatClick(dialog: DialogFragment, type: ExportAlertDialogTypeEnum) {
         viewModel.newExcelFormat = true
         when (type) {

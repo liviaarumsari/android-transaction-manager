@@ -8,7 +8,7 @@
             type="com.example.abe.ui.form_transaction.FormTransactionViewModel" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/main"
+        android:id="@+id/formTransaction"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".ui.form_transaction.FormTransaction">
