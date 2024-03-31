@@ -1,6 +1,6 @@
 package com.example.abe.ui.transactions
 
-import android.content.Intent
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,11 +13,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.abe.R
 import com.example.abe.data.Transaction
 import com.example.abe.domain.FormatCurrencyUseCase
-import com.example.abe.ui.form_transaction.FormTransaction
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class TransactionsAdapter(private val itemClickListener: TransactionFragment.ItemClickListener): ListAdapter<Transaction, TransactionsAdapter.TransactionViewHolder>(TransactionComparator()) {
+class TransactionsAdapter(private val itemClickListener: TransactionFragment.ItemClickListener, private val context: Context): ListAdapter<Transaction, TransactionsAdapter.TransactionViewHolder>(TransactionComparator()) {
     class TransactionViewHolder(val view: View): RecyclerView.ViewHolder(view) {
         val clImageContainer: ConstraintLayout
         val ivTrxIcon: ImageView
@@ -55,15 +54,15 @@ class TransactionsAdapter(private val itemClickListener: TransactionFragment.Ite
 
     override fun onBindViewHolder(holder: TransactionViewHolder, position: Int) {
         with(holder) {
-//            TODO Set color from theme
-//            clImageContainer.background =
             val trx = getItem(position)
 
-            if (!trx.isExpense)
-                ivTrxIcon.setImageResource(R.drawable.ic_circle_arrow_up)
+            if (!trx.isExpense) {
+                clImageContainer.setBackgroundColor(context.getColor(R.color.secondary))
+                ivTrxIcon.setImageResource(R.drawable.ic_circle_arrow_down)
+                tvAmount.setTextColor(context.getColor(R.color.success))
+            }
 
             tvTrxTitle.text = trx.title
-//            TODO location
             tvLocation.text = trx.location
 
             tvDate.text = SimpleDateFormat("d MMM yyyy" , Locale.ENGLISH).format(trx.timestamp)
@@ -73,9 +72,6 @@ class TransactionsAdapter(private val itemClickListener: TransactionFragment.Ite
             tvAmount.text = amountText
 
             view.setOnClickListener {
-//                val intent = Intent(it.context, FormTransaction::class.java)
-//                intent.putExtra("id", trx.id.toString())
-//                it.context.startActivity(intent)
                 itemClickListener.onItemClicked(trx.id)
             }
         }
