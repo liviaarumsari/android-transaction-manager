@@ -59,26 +59,17 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         when(action) {
             "OPEN_FORM" -> {
-                navController.navigate(R.id.navigation_form_transaction)
+                navController.navigate(R.id.action_navigation_transactions_to_navigation_form_transaction)
             }
         }
     }
 
     override fun onItemClicked(id: Int) {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
-//        navController.addOnDestinationChangedListener { _, destination, _ ->
-//            Log.d("ABE-ADD", "Destination changed listener")
-//            if (destination.id == R.id.navigation_form_transaction) {
-//                Log.d("ABE-ADD", "Destination destination correct")
-//                val fragment = supportFragmentManager.findFragmentById(R.id.navigation_form_transaction) as? FormTransaction
-//                Log.d("ABE-ADD", if (fragment == null) "fragment is null" else "fragment not null")
-//                fragment?.displayTrx(id)
-//            }
-//        }
         val bundle = Bundle()
         bundle.putBoolean("is-update", true)
         bundle.putInt("idx-id", id)
-        navController.navigate(R.id.navigation_form_transaction, bundle)
+        navController.navigate(R.id.action_navigation_transactions_to_navigation_form_transaction, bundle)
     }
     override fun onNewExcelFormatClick(dialog: DialogFragment, type: ExportAlertDialogTypeEnum) {
         viewModel.newExcelFormat = true

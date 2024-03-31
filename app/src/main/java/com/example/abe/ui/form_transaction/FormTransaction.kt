@@ -18,9 +18,11 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.example.abe.ABEApplication
 import com.example.abe.R
 import com.example.abe.databinding.FragmentFormTransactionBinding
@@ -52,7 +54,6 @@ class FormTransaction : Fragment() {
         super.onCreate(savedInstanceState)
 
         _binding = FragmentFormTransactionBinding.inflate(inflater, container, false)
-//        setContentView(binding.root)
 
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
@@ -60,19 +61,14 @@ class FormTransaction : Fragment() {
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-
-//        if (id != null) {
-//            requireActivity().intent.getStringExtra("id")?.let { viewModel.getTransaction(it.toInt())
-//            id = it.toInt()}
-//            binding.categoryAutocomplete.isEnabled = false
-//        }
-//        else {
-//            binding.btnDelete.visibility = View.GONE
-//        }
-
         if (requireActivity().intent.hasExtra("random_amount")) {
             viewModel.setRandomAmount(requireActivity().intent.getIntExtra("random_amount", 10000))
         }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            findNavController().navigateUp()
+        }
+
 
         val categories = resources.getStringArray(R.array.Categories)
         val adapterItems = ArrayAdapter<String>(requireContext(), R.layout.list_item, categories)
@@ -96,16 +92,17 @@ class FormTransaction : Fragment() {
 
         if (arguments != null) {
             val args = Bundle(arguments)
-            val hasArgs = args.getBoolean("is-update")
-            val trx_id = args.getInt("idx-id")
-            if (hasArgs)
-                displayTrx(trx_id)
+            val trxId = args.getInt("idx-id")
+            displayTrx(trxId)
+        } else {
+            binding.btnDelete.visibility = View.GONE
         }
 
         return binding.root
     }
 
-    fun displayTrx(idTrx: Int) {
+
+    private fun displayTrx(idTrx: Int) {
         id = idTrx
         viewModel.getTransaction(idTrx)
         binding.categoryAutocomplete.isEnabled = false
@@ -168,7 +165,7 @@ class FormTransaction : Fragment() {
                 else {
                     viewModel.insertTransaction(user)
                 }
-//                finish()
+                findNavController().navigateUp()
             }
         }
     }
@@ -176,7 +173,7 @@ class FormTransaction : Fragment() {
     private fun deleteButtonListener() {
         binding.btnDelete.setOnClickListener {
             id?.let { viewModel.deleteTransaction(id!!)}
-//            finish()
+            findNavController().navigateUp()
         }
     }
 
@@ -248,7 +245,7 @@ class FormTransaction : Fragment() {
                             binding.formLocationEditText.setText(list[0].getAddressLine(0))
                         }
                     } else {
-                        Log.v("ABECEKUT", "location kg ada")
+                        Log.v("ABECEKUT", "location not available")
                     }
                 }
             } else {

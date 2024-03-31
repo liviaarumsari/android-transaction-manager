@@ -11,7 +11,13 @@
         android:label="Transactions"
         android:name="com.example.abe.ui.transactions.TransactionFragment"
         tools:layout="@layout/fragment_transactions"
-        />
+        >
+        <action
+            android:id="@+id/action_navigation_transactions_to_navigation_form_transaction"
+            app:destination="@id/navigation_form_transaction"
+            app:popUpTo="@id/navigation_form_transaction"
+            app:popUpToInclusive="true"/>
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_form_transaction"
