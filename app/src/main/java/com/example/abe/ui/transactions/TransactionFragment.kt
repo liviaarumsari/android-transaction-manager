@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.abe.ABEApplication
 import com.example.abe.databinding.FragmentTransactionsBinding
 import com.example.abe.types.FragmentListener
-import com.example.abe.ui.form_transaction.FormTransaction
 
 
 class TransactionFragment : Fragment() {

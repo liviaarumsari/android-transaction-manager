@@ -43,7 +43,7 @@ class FormTransaction : Fragment() {
         FormTransactionViewModelFactory((activity?.application as ABEApplication).repository)
     }
 
-    private lateinit var user:String
+    private lateinit var user: String
 
     private var id: Int? = null
 
@@ -59,7 +59,8 @@ class FormTransaction : Fragment() {
         binding.lifecycleOwner = this
         viewModel.amountNumber.observe(viewLifecycleOwner, {})
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireActivity())
 
         if (requireActivity().intent.hasExtra("random_amount")) {
             viewModel.setRandomAmount(requireActivity().intent.getIntExtra("random_amount", 10000))
@@ -87,13 +88,21 @@ class FormTransaction : Fragment() {
 
         getLocation()
 
-        val sharedPref = requireActivity().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        val sharedPref = requireActivity().getSharedPreferences(
+            getString(R.string.preference_file_key),
+            Context.MODE_PRIVATE
+        )
         user = sharedPref.getString("user", "").toString()
 
         if (arguments != null) {
             val args = Bundle(arguments)
-            val trxId = args.getInt("idx-id")
-            displayTrx(trxId)
+            if (args.containsKey("idx-id")) {
+                val trxId = args.getInt("idx-id")
+                displayTrx(trxId)
+            } else if (args.containsKey("random_amount")) {
+                viewModel.setRandomAmount(args.getInt("random_amount"))
+                binding.btnDelete.visibility = View.GONE
+            }
         } else {
             binding.btnDelete.visibility = View.GONE
         }
@@ -161,8 +170,7 @@ class FormTransaction : Fragment() {
             ) {
                 if (id != null) {
                     viewModel.updateTransaction(id!!)
-                }
-                else {
+                } else {
                     viewModel.insertTransaction(user)
                 }
                 findNavController().navigateUp()
@@ -172,7 +180,7 @@ class FormTransaction : Fragment() {
 
     private fun deleteButtonListener() {
         binding.btnDelete.setOnClickListener {
-            id?.let { viewModel.deleteTransaction(id!!)}
+            id?.let { viewModel.deleteTransaction(id!!) }
             findNavController().navigateUp()
         }
     }
@@ -249,7 +257,8 @@ class FormTransaction : Fragment() {
                     }
                 }
             } else {
-                Toast.makeText(requireActivity(), "Please turn on location", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireActivity(), "Please turn on location", Toast.LENGTH_LONG)
+                    .show()
                 val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                 startActivity(intent)
             }

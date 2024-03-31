@@ -2,17 +2,21 @@ package com.example.abe
 
 import android.app.Activity
 import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.abe.databinding.ActivityMainBinding
@@ -25,6 +29,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertDialogListener, FragmentListener, TransactionFragment.ItemClickListener {
+    private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var navController: NavController
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainActivityViewModel by viewModels {
@@ -32,7 +38,19 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
     }
 
     private val filter = IntentFilter().apply { addAction("RANDOMIZE_TRANSACTION") }
-    private val br: BroadcastReceiver = TransactionBroadcastReceiver()
+    private val br = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            when(intent.action) {
+                "RANDOMIZE_TRANSACTION" -> {
+                    val randomAmount = intent.getIntExtra("random_amount", 0)
+                    val bundle = Bundle().apply {
+                        putInt("random_amount", randomAmount)
+                    }
+                    navController.navigate(R.id.action_navigation_transactions_to_navigation_form_transaction, bundle)
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,9 +60,9 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
 
         val navView: BottomNavigationView = binding.navView
 
-        val navController = findNavController(R.id.nav_host_fragment_activity_main)
+        navController = findNavController(R.id.nav_host_fragment_activity_main)
 
-        val appBarConfiguration = AppBarConfiguration(
+        appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.navigation_transactions
             )
@@ -56,7 +74,6 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
     }
 
     override fun onIntentReceived(action: String, info: String?) {
-        val navController = findNavController(R.id.nav_host_fragment_activity_main)
         when(action) {
             "OPEN_FORM" -> {
                 navController.navigate(R.id.action_navigation_transactions_to_navigation_form_transaction)
@@ -65,7 +82,6 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
     }
 
     override fun onItemClicked(id: Int) {
-        val navController = findNavController(R.id.nav_host_fragment_activity_main)
         val bundle = Bundle()
         bundle.putBoolean("is-update", true)
         bundle.putInt("idx-id", id)
@@ -139,4 +155,9 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         super.onDestroy()
         LocalBroadcastManager.getInstance(this).registerReceiver(br, filter)
     }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return super.onSupportNavigateUp() || navController.navigateUp(appBarConfiguration)
+    }
+
 }
