@@ -1,5 +1,9 @@
 package com.example.abe.data.network
 
+import android.content.Context
+import android.preference.PreferenceManager
+import com.example.abe.R
+import com.example.abe.services.AuthService
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -9,6 +13,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 interface LoginResultCallback {
     fun onSuccess(loginResponse: LoginResponse)
     fun onFailure(errorMessage: String)
+}
+
+interface CheckAuthResultCallback {
+    fun onFailure()
 }
 
 class CallBack<T> : Callback<T> {
@@ -58,6 +66,23 @@ class Retrofit {
 
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
                 callback.onFailure("Failed to send request")
+            }
+        })
+    }
+
+    fun checkAuth(token: String, callback: CheckAuthResultCallback) {
+        val checkAuthService = retrofit.create(CheckAuthService::class.java)
+        val call: Call<CheckAuthResponse> = checkAuthService.checkAuth("Bearer $token")
+
+        call.enqueue(object : Callback<CheckAuthResponse> {
+            override fun onResponse(call: Call<CheckAuthResponse>, response: Response<CheckAuthResponse>) {
+                if (response.isSuccessful) {
+                    callback.onFailure()
+                }
+            }
+
+            override fun onFailure(call: Call<CheckAuthResponse>, t: Throwable) {
+                callback.onFailure()
             }
         })
     }

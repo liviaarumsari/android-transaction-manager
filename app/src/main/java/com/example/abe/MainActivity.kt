@@ -20,7 +20,9 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.abe.databinding.ActivityMainBinding
+import com.example.abe.services.AuthService
 import com.example.abe.types.FragmentListener
+import com.example.abe.ui.login.LoginActivity
 import com.example.abe.ui.transactions.ExportAlertDialogFragment
 import com.example.abe.ui.transactions.ExportAlertDialogTypeEnum
 import com.example.abe.ui.transactions.ExportLoadDialogFragment
@@ -28,7 +30,8 @@ import com.example.abe.ui.transactions.TransactionFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertDialogListener, FragmentListener, TransactionFragment.ItemClickListener {
+class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertDialogListener,
+    FragmentListener, TransactionFragment.ItemClickListener {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
 
@@ -37,16 +40,28 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         MainActivityViewModelFactory((application as ABEApplication).repository)
     }
 
-    private val filter = IntentFilter().apply { addAction("RANDOMIZE_TRANSACTION") }
+    private val filter = IntentFilter().apply {
+        addAction("RANDOMIZE_TRANSACTION")
+        addAction("EXPIRED_TOKEN")
+    }
     private val br = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            when(intent.action) {
+            when (intent.action) {
                 "RANDOMIZE_TRANSACTION" -> {
                     val randomAmount = intent.getIntExtra("random_amount", 0)
                     val bundle = Bundle().apply {
                         putInt("random_amount", randomAmount)
                     }
-                    navController.navigate(R.id.action_navigation_transactions_to_navigation_form_transaction, bundle)
+                    navController.navigate(
+                        R.id.action_navigation_transactions_to_navigation_form_transaction,
+                        bundle
+                    )
+                }
+
+                "EXPIRED_TOKEN" -> {
+                    val loginIntent = Intent(context, LoginActivity::class.java)
+                    startActivity(loginIntent)
+                    this@MainActivity.finish()
                 }
             }
         }
@@ -71,10 +86,13 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         navView.setupWithNavController(navController)
 
         LocalBroadcastManager.getInstance(this).registerReceiver(br, filter)
+
+        val serviceIntent = Intent(this, AuthService::class.java)
+        startService(serviceIntent);
     }
 
     override fun onIntentReceived(action: String, info: String?) {
-        when(action) {
+        when (action) {
             "OPEN_FORM" -> {
                 navController.navigate(R.id.action_navigation_transactions_to_navigation_form_transaction)
             }
@@ -85,8 +103,12 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         val bundle = Bundle()
         bundle.putBoolean("is-update", true)
         bundle.putInt("idx-id", id)
-        navController.navigate(R.id.action_navigation_transactions_to_navigation_form_transaction, bundle)
+        navController.navigate(
+            R.id.action_navigation_transactions_to_navigation_form_transaction,
+            bundle
+        )
     }
+
     override fun onNewExcelFormatClick(dialog: DialogFragment, type: ExportAlertDialogTypeEnum) {
         viewModel.newExcelFormat = true
         when (type) {
@@ -154,6 +176,8 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
     override fun onDestroy() {
         super.onDestroy()
         LocalBroadcastManager.getInstance(this).registerReceiver(br, filter)
+        val serviceIntent = Intent(this, AuthService::class.java)
+        stopService(serviceIntent);
     }
 
     override fun onSupportNavigateUp(): Boolean {
