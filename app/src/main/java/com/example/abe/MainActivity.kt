@@ -17,7 +17,6 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.abe.databinding.ActivityMainBinding
 import com.example.abe.types.FragmentListener
-import com.example.abe.ui.form_transaction.FormTransaction
 import com.example.abe.ui.transactions.ExportAlertDialogFragment
 import com.example.abe.ui.transactions.ExportAlertDialogTypeEnum
 import com.example.abe.ui.transactions.ExportLoadDialogFragment
@@ -67,13 +66,19 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
 
     override fun onItemClicked(id: Int) {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            if (destination.id == R.id.navigation_form_transaction) {
-                val fragment = supportFragmentManager.findFragmentById(R.id.navigation_form_transaction) as? FormTransaction
-                fragment?.displayTrx(id)
-            }
-        }
-        navController.navigate(R.id.navigation_form_transaction)
+//        navController.addOnDestinationChangedListener { _, destination, _ ->
+//            Log.d("ABE-ADD", "Destination changed listener")
+//            if (destination.id == R.id.navigation_form_transaction) {
+//                Log.d("ABE-ADD", "Destination destination correct")
+//                val fragment = supportFragmentManager.findFragmentById(R.id.navigation_form_transaction) as? FormTransaction
+//                Log.d("ABE-ADD", if (fragment == null) "fragment is null" else "fragment not null")
+//                fragment?.displayTrx(id)
+//            }
+//        }
+        val bundle = Bundle()
+        bundle.putBoolean("is-update", true)
+        bundle.putInt("idx-id", id)
+        navController.navigate(R.id.navigation_form_transaction, bundle)
     }
     override fun onNewExcelFormatClick(dialog: DialogFragment, type: ExportAlertDialogTypeEnum) {
         viewModel.newExcelFormat = true

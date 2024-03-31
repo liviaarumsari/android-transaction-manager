@@ -94,6 +94,14 @@ class FormTransaction : Fragment() {
         val sharedPref = requireActivity().getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         user = sharedPref.getString("user", "").toString()
 
+        if (arguments != null) {
+            val args = Bundle(arguments)
+            val hasArgs = args.getBoolean("is-update")
+            val trx_id = args.getInt("idx-id")
+            if (hasArgs)
+                displayTrx(trx_id)
+        }
+
         return binding.root
     }
 
