@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="100dp"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
+    android:background="@drawable/bg_transaction_row_item"
+    android:layout_marginBottom="12dp"
     >
     <!--     TODO background colors & try clipping for rounded corner-->
 
@@ -29,10 +30,11 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
         app:layout_constraintBottom_toBottomOf="@+id/clImageContainer"
+        app:layout_constraintEnd_toStartOf="@+id/tvAmount"
         app:layout_constraintStart_toEndOf="@+id/clImageContainer"
         app:layout_constraintTop_toTopOf="@+id/clImageContainer">
 
@@ -41,6 +43,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Shopping Spree"
+            android:textColor="@color/black"
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -48,19 +51,23 @@
 
         <ImageView
             android:id="@+id/ivLocation"
-            android:layout_width="10sp"
-            android:layout_height="10sp"
+            android:layout_width="12sp"
+            android:layout_height="12sp"
             app:layout_constraintBottom_toBottomOf="@+id/tvLocation"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tvLocation"
-            app:srcCompat="@drawable/ic_location" />
+            app:srcCompat="@drawable/ic_map_pin" />
 
         <TextView
             android:id="@+id/tvLocation"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
+            android:ellipsize="end"
+            android:maxLines="2"
             android:text="Shopee"
+            android:textColor="@color/primary"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivLocation"
             app:layout_constraintTop_toBottomOf="@+id/tvTrxTitle" />
 
@@ -69,6 +76,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="3 Mar 2024"
+            android:textColor="@color/grayDark"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvLocation" />
@@ -80,6 +88,8 @@
         android:layout_height="wrap_content"
         android:text="-Rp350.000"
         android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/destructive"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"

@@ -42,7 +42,7 @@ class TransactionFragment : Fragment() {
     ): View {
         _binding = FragmentTransactionsBinding.inflate(inflater, container, false)
 
-        val transactionsAdapter = TransactionsAdapter(listener)
+        val transactionsAdapter = TransactionsAdapter(listener, requireContext())
         binding.rvTransactions.adapter = transactionsAdapter
         binding.rvTransactions.layoutManager = LinearLayoutManager(context)
 
