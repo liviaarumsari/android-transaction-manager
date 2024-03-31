@@ -21,7 +21,7 @@
             android:id="@+id/ivTrxIcon"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/ic_circle_arrow_down"
+            android:src="@drawable/ic_circle_arrow_up"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
