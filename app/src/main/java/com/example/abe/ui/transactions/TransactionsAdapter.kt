@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.abe.R
 import com.example.abe.data.Transaction
+import com.example.abe.domain.FormatCurrencyUseCase
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Currency
@@ -67,11 +68,8 @@ class TransactionsAdapter: ListAdapter<Transaction, TransactionsAdapter.Transact
 
             tvDate.text = SimpleDateFormat("d MMM yyyy" , Locale.ENGLISH).format(trx.timestamp)
 
-            val numberFormat = NumberFormat.getCurrencyInstance()
-            numberFormat.setMaximumFractionDigits(0)
-            numberFormat.currency = Currency.getInstance("IDR")
-
-            val amountText = (if (trx.isExpense) "-" else "+") + numberFormat.format(trx.amount).toString()
+            val currencyFormatter = FormatCurrencyUseCase()
+            val amountText = (if (trx.isExpense) "-" else "+") + currencyFormatter(trx.amount)
             tvAmount.text = amountText
         }
     }
