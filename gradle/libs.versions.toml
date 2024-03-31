@@ -22,6 +22,8 @@ retrofit = "2.9.0"
 gson = "2.9.0"
 poi = "5.2.5"
 poiOoxml = "5.2.5"
+activity = "1.8.0"
+playServicesLocation = "21.2.0"
 camerax = "1.4.0-alpha04"
 glide = "4.12.0"
 
@@ -47,6 +49,8 @@ androidx-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", versi
 androidx-retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "gson" }
 poi = { group = "org.apache.poi", name = "poi", version.ref = "poi" }
 poi-ooxml = { group = "org.apache.poi", name = "poi-ooxml", version.ref = "poiOoxml" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 camera-core = { module = "androidx.camera:camera-camera2", version.ref = "camerax" }
 camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camerax" }
 camera-view = { module = "androidx.camera:camera-view", version.ref = "camerax" }

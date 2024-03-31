@@ -12,6 +12,8 @@ data class Transaction (
     val title: String,
     val amount: Int,
     val isExpense: Boolean,
-    val timestamp: Date
-//    val location: String,
+    val timestamp: Date,
+    val latitude: Double,
+    val longitude: Double,
+    val location: String,
 )

@@ -3,4 +3,15 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="title">Title</string>
+    <string name="add_transaction">Add Transaction</string>
+    <string name="amount">Amount</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="preference_file_key">com.example.ABE.PREFERENCE_FILE_KEY</string>
+
+    <string-array name="Categories">
+        <item>Income</item>
+        <item>Expenses</item>
+    </string-array>
 </resources>

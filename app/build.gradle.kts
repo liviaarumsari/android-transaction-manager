@@ -33,6 +33,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        dataBinding = true
     }
 }
 
@@ -58,6 +59,8 @@ dependencies {
     implementation(libs.camera.view)
     implementation(libs.glide)
     annotationProcessor(libs.glideCompiler)
+    implementation(libs.androidx.activity)
+    implementation(libs.play.services.location)
     annotationProcessor(libs.androidx.room.compiler)
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.legacy.support.v4)

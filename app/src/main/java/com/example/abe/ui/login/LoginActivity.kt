@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.abe.MainActivity
+import com.example.abe.R
 import com.example.abe.data.network.LoginResultCallback
 import com.example.abe.data.network.Retrofit
 import com.example.abe.databinding.ActivityLoginBinding
@@ -14,7 +15,7 @@ class LoginActivity : AppCompatActivity(), LoginResultCallback {
 
     private lateinit var binding: ActivityLoginBinding
 
-    private val token = ""
+    private var email = ""
 
     private fun attemptLogin(email: String, password: String) {
         val retrofit = Retrofit()
@@ -25,14 +26,16 @@ class LoginActivity : AppCompatActivity(), LoginResultCallback {
         // Handle successful login
         println("Login successful: $loginResponse")
 
-        val token = getSharedPreferences(token, Context.MODE_PRIVATE)
-        with(token.edit()) {
+        val sharedPref = getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        with(sharedPref.edit()) {
             putString("login_token", loginResponse.token)
+            putString("user", email)
             apply()
         }
 
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     override fun onFailure(errorMessage: String) {
@@ -50,7 +53,7 @@ class LoginActivity : AppCompatActivity(), LoginResultCallback {
         setContentView(view)
 
         binding.btnSignIn.setOnClickListener {
-            val email: String = binding.emailInput.text.toString()
+            email = binding.emailInput.text.toString()
             val password: String = binding.passwordInput.text.toString()
 
             attemptLogin(email, password)
