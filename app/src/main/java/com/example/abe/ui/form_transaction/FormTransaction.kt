@@ -12,68 +12,67 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.addCallback
 import androidx.core.app.ActivityCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.example.abe.ABEApplication
 import com.example.abe.R
-import com.example.abe.databinding.ActivityFormTransactionBinding
+import com.example.abe.databinding.FragmentFormTransactionBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import java.util.Locale
 
-class FormTransaction : AppCompatActivity() {
-    private lateinit var binding: ActivityFormTransactionBinding
+class FormTransaction : Fragment() {
+    private var _binding: FragmentFormTransactionBinding? = null
+
+    private val binding get() = _binding!!
+
+
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val permissionId = 2
 
     private val viewModel: FormTransactionViewModel by viewModels {
-        FormTransactionViewModelFactory((this.application as ABEApplication).repository)
+        FormTransactionViewModelFactory((activity?.application as ABEApplication).repository)
     }
 
-    private lateinit var user:String
+    private lateinit var user: String
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    private var id: Int? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
 
-        binding = ActivityFormTransactionBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        _binding = FragmentFormTransactionBinding.inflate(inflater, container, false)
 
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
-        viewModel.amountNumber.observe(this, {})
+        viewModel.amountNumber.observe(viewLifecycleOwner, {})
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        if (intent.hasExtra("id")) {
-            intent.getStringExtra("id")?.let { viewModel.getTransaction(it.toInt()) }
-            binding.categoryAutocomplete.isEnabled = false
-        }
-        else {
-            binding.btnDelete.visibility = View.GONE
+        if (requireActivity().intent.hasExtra("random_amount")) {
+            viewModel.setRandomAmount(requireActivity().intent.getIntExtra("random_amount", 10000))
         }
 
-        if (intent.hasExtra("random_amount")) {
-            viewModel.setRandomAmount(intent.getIntExtra("random_amount", 10000))
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            findNavController().navigateUp()
         }
+
 
         val categories = resources.getStringArray(R.array.Categories)
-        val adapterItems = ArrayAdapter<String>(this, R.layout.list_item, categories)
+        val adapterItems = ArrayAdapter<String>(requireContext(), R.layout.list_item, categories)
         binding.categoryAutocomplete.setAdapter(adapterItems)
         binding.categoryAutocomplete.onItemClickListener =
             AdapterView.OnItemClickListener { parent, view, position, id ->
@@ -89,8 +88,33 @@ class FormTransaction : AppCompatActivity() {
 
         getLocation()
 
-        val sharedPref = getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        val sharedPref = requireActivity().getSharedPreferences(
+            getString(R.string.preference_file_key),
+            Context.MODE_PRIVATE
+        )
         user = sharedPref.getString("user", "").toString()
+
+        if (arguments != null) {
+            val args = Bundle(arguments)
+            if (args.containsKey("idx-id")) {
+                val trxId = args.getInt("idx-id")
+                displayTrx(trxId)
+            } else if (args.containsKey("random_amount")) {
+                viewModel.setRandomAmount(args.getInt("random_amount"))
+                binding.btnDelete.visibility = View.GONE
+            }
+        } else {
+            binding.btnDelete.visibility = View.GONE
+        }
+
+        return binding.root
+    }
+
+
+    private fun displayTrx(idTrx: Int) {
+        id = idTrx
+        viewModel.getTransaction(idTrx)
+        binding.categoryAutocomplete.isEnabled = false
     }
 
     private fun titleFocusListener() {
@@ -144,27 +168,26 @@ class FormTransaction : AppCompatActivity() {
                     .isNotEmpty() && binding.categoryAutocomplete.text.toString()
                     .isNotEmpty() && binding.formLocationEditText.text.toString().isNotEmpty()
             ) {
-                if (intent.hasExtra("id")) {
-                    intent.getStringExtra("id")?.let { viewModel.updateTransaction(it.toInt()) }
-                }
-                else {
+                if (id != null) {
+                    viewModel.updateTransaction(id!!)
+                } else {
                     viewModel.insertTransaction(user)
                 }
-                finish()
+                findNavController().navigateUp()
             }
         }
     }
 
     private fun deleteButtonListener() {
         binding.btnDelete.setOnClickListener {
-            intent.getStringExtra("id")?.let { viewModel.deleteTransaction(it.toInt()) }
-            finish()
+            id?.let { viewModel.deleteTransaction(id!!) }
+            findNavController().navigateUp()
         }
     }
 
     private fun isLocationEnabled(): Boolean {
         val locationManager: LocationManager =
-            getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
             LocationManager.NETWORK_PROVIDER
         )
@@ -172,11 +195,11 @@ class FormTransaction : AppCompatActivity() {
 
     private fun checkPermissions(): Boolean {
         if (ActivityCompat.checkSelfPermission(
-                this,
+                requireActivity(),
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(
-                this,
+                requireActivity(),
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
@@ -187,7 +210,7 @@ class FormTransaction : AppCompatActivity() {
 
     private fun requestPermissions() {
         ActivityCompat.requestPermissions(
-            this,
+            requireActivity(),
             arrayOf(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -213,10 +236,10 @@ class FormTransaction : AppCompatActivity() {
     private fun getLocation() {
         if (checkPermissions()) {
             if (isLocationEnabled()) {
-                fusedLocationProviderClient.lastLocation.addOnCompleteListener(this) { task ->
+                fusedLocationProviderClient.lastLocation.addOnCompleteListener(requireActivity()) { task ->
                     val location: Location? = task.result
                     if (location != null) {
-                        val geocoder = Geocoder(this, Locale.getDefault())
+                        val geocoder = Geocoder(requireContext(), Locale.getDefault())
                         val list: MutableList<Address>? =
                             geocoder.getFromLocation(location.latitude, location.longitude, 1)
                         Log.v(
@@ -230,11 +253,12 @@ class FormTransaction : AppCompatActivity() {
                             binding.formLocationEditText.setText(list[0].getAddressLine(0))
                         }
                     } else {
-                        Log.v("ABECEKUT", "location kg ada")
+                        Log.v("ABECEKUT", "location not available")
                     }
                 }
             } else {
-                Toast.makeText(this, "Please turn on location", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireActivity(), "Please turn on location", Toast.LENGTH_LONG)
+                    .show()
                 val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                 startActivity(intent)
             }
