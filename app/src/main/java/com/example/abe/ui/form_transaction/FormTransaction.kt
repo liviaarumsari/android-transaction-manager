@@ -2,6 +2,7 @@ package com.example.abe.ui.form_transaction
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,6 +12,7 @@ import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -48,7 +50,7 @@ class FormTransaction : Fragment() {
     private lateinit var user: String
 
     private var id: Int? = null
-    private var location: String? =null
+    private var location: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -121,7 +123,13 @@ class FormTransaction : Fragment() {
 
         ConstraintSet().apply {
             clone(binding.formTransaction)
-            connect(R.id.formLocationContainer, ConstraintSet.TOP, R.id.formCategoryContainer, ConstraintSet.BOTTOM, 5)
+            connect(
+                R.id.formLocationContainer,
+                ConstraintSet.TOP,
+                R.id.formCategoryContainer,
+                ConstraintSet.BOTTOM,
+                5
+            )
             applyTo(binding.formTransaction)
         }
     }
@@ -155,7 +163,8 @@ class FormTransaction : Fragment() {
             val destinationLatitude = viewModel.latitude.value.toString()
             val destinationLongitude = viewModel.longitude.value.toString()
 
-            val mapUri = Uri.parse("https://maps.google.com/maps?daddr=$destinationLatitude,$destinationLongitude")
+            val mapUri =
+                Uri.parse("https://maps.google.com/maps?daddr=$destinationLatitude,$destinationLongitude")
             val intent = Intent(Intent.ACTION_VIEW, mapUri)
             startActivity(intent)
         }
@@ -168,7 +177,8 @@ class FormTransaction : Fragment() {
     }
 
     private fun setHelperText(container: TextInputLayout, editText: EditText) {
-        container.helperText = if (editText.text.toString().isEmpty()) "This field is required" else null
+        container.helperText =
+            if (editText.text.toString().isEmpty()) "This field is required" else null
     }
 
     private fun saveButtonListener() {
@@ -179,14 +189,14 @@ class FormTransaction : Fragment() {
 
             if (binding.formLocationEditText.text.toString().isEmpty()) {
                 binding.formLocationEditText.setText(location)
-                Toast.makeText(requireActivity(), location, Toast.LENGTH_SHORT)
-                    .show()
+                Log.v("abecekut", "location is $location")
             }
 
             if (binding.formTitleEditText.text.toString()
                     .isNotEmpty() && binding.formAmountEditText.text.toString()
                     .isNotEmpty() && binding.categoryAutocomplete.text.toString()
-                    .isNotEmpty()) {
+                    .isNotEmpty()
+            ) {
                 if (id != null) {
                     viewModel.updateTransaction(id!!)
                 } else {
@@ -199,8 +209,19 @@ class FormTransaction : Fragment() {
 
     private fun deleteButtonListener() {
         binding.btnDelete.setOnClickListener {
-            id?.let { viewModel.deleteTransaction(id!!) }
-            findNavController().navigateUp()
+            id?.let {
+                val builder: AlertDialog.Builder = AlertDialog.Builder(requireContext())
+                builder
+                    .setMessage("Are you sure you want to delete this transaction?")
+                    .setPositiveButton("Delete") { dialog, which ->
+                        viewModel.deleteTransaction(id!!)
+                        findNavController().navigateUp()
+                    }.setNegativeButton("Cancel") { _, _ -> }
+
+                val dialog: AlertDialog = builder.create()
+                dialog.show()
+            }
+
         }
     }
 
