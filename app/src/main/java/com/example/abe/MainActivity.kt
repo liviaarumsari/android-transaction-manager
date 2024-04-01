@@ -8,7 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -93,6 +93,11 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.navigation_form_transaction) navView.visibility = View.GONE
+            else navView.visibility = View.VISIBLE
+        }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(br, filter)
 
