@@ -11,13 +11,12 @@ import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.constraintlayout.widget.ConstraintSet
@@ -30,6 +29,7 @@ import com.example.abe.R
 import com.example.abe.databinding.FragmentFormTransactionBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.textfield.TextInputLayout
 import java.util.Locale
 
 class FormTransaction : Fragment() {
@@ -39,7 +39,7 @@ class FormTransaction : Fragment() {
 
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private val permissionId = 2
+    private val permissionId = 5
 
     private val viewModel: FormTransactionViewModel by viewModels {
         FormTransactionViewModelFactory((activity?.application as ABEApplication).repository)
@@ -48,6 +48,7 @@ class FormTransaction : Fragment() {
     private lateinit var user: String
 
     private var id: Int? = null
+    private var location: String? =null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -106,6 +107,7 @@ class FormTransaction : Fragment() {
                 viewModel.setRandomAmount(args.getInt("random_amount"))
                 useNewTrxLayout()
             }
+            arguments = null
         } else {
             useNewTrxLayout()
         }
@@ -132,34 +134,19 @@ class FormTransaction : Fragment() {
 
     private fun titleFocusListener() {
         binding.formTitleEditText.setOnFocusChangeListener { _, focused ->
-            if (!focused) {
-                binding.formTitleContainer.helperText =
-                    if (binding.formTitleEditText.text.toString()
-                            .isEmpty()
-                    ) "Title is required" else null
-            }
+            if (!focused) setHelperText(binding.formTitleContainer, binding.formTitleEditText)
         }
     }
 
     private fun amountFocusListener() {
         binding.formAmountEditText.setOnFocusChangeListener { _, focused ->
-            if (!focused) {
-                binding.formAmountContainer.helperText =
-                    if (binding.formAmountEditText.text.toString()
-                            .isEmpty()
-                    ) "Amount is required" else null
-            }
+            if (!focused) setHelperText(binding.formAmountContainer, binding.formAmountEditText)
         }
     }
 
     private fun categoryFocusListener() {
         binding.categoryAutocomplete.setOnFocusChangeListener { _, focused ->
-            if (!focused) {
-                binding.formCategoryContainer.helperText =
-                    if (binding.categoryAutocomplete.text.toString()
-                            .isEmpty()
-                    ) "Category is required" else null
-            }
+            if (!focused) setHelperText(binding.formCategoryContainer, binding.categoryAutocomplete)
         }
     }
 
@@ -176,22 +163,30 @@ class FormTransaction : Fragment() {
 
     private fun locationFocusListener() {
         binding.formLocationEditText.setOnFocusChangeListener { _, focused ->
-            if (!focused) {
-                binding.formLocationContainer.helperText =
-                    if (binding.formLocationEditText.text.toString()
-                            .isEmpty()
-                    ) "Location is required" else null
-            }
+            if (!focused) setHelperText(binding.formLocationContainer, binding.formLocationEditText)
         }
+    }
+
+    private fun setHelperText(container: TextInputLayout, editText: EditText) {
+        container.helperText = if (editText.text.toString().isEmpty()) "This field is required" else null
     }
 
     private fun saveButtonListener() {
         binding.btnSave.setOnClickListener {
+            setHelperText(binding.formTitleContainer, binding.formTitleEditText)
+            setHelperText(binding.formAmountContainer, binding.formAmountEditText)
+            setHelperText(binding.formCategoryContainer, binding.categoryAutocomplete)
+
+            if (binding.formLocationEditText.text.toString().isEmpty()) {
+                binding.formLocationEditText.setText(location)
+                Toast.makeText(requireActivity(), location, Toast.LENGTH_SHORT)
+                    .show()
+            }
+
             if (binding.formTitleEditText.text.toString()
                     .isNotEmpty() && binding.formAmountEditText.text.toString()
                     .isNotEmpty() && binding.categoryAutocomplete.text.toString()
-                    .isNotEmpty() && binding.formLocationEditText.text.toString().isNotEmpty()
-            ) {
+                    .isNotEmpty()) {
                 if (id != null) {
                     viewModel.updateTransaction(id!!)
                 } else {
@@ -251,43 +246,61 @@ class FormTransaction : Fragment() {
     ) {
         if (requestCode == permissionId) {
             if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                getLocation()
+                getCurrentLocation()
+            } else {
+                val defaultLatitude = -6.892382
+                val defaultLongitude = 107.608352
+                Toast.makeText(requireActivity(), "Location set to default", Toast.LENGTH_SHORT)
+                    .show()
+                setLocation(defaultLatitude, defaultLongitude)
             }
         }
     }
 
-    @SuppressLint("MissingPermission", "SetTextI18n")
     private fun getLocation() {
         if (checkPermissions()) {
-            if (isLocationEnabled()) {
-                fusedLocationProviderClient.lastLocation.addOnCompleteListener(requireActivity()) { task ->
-                    val location: Location? = task.result
-                    if (location != null) {
-                        val geocoder = Geocoder(requireContext(), Locale.getDefault())
-                        val list: MutableList<Address>? =
-                            geocoder.getFromLocation(location.latitude, location.longitude, 1)
-                        Log.v(
-                            "ABECEKUT",
-                            location.latitude.toString() + " " + location.longitude.toString()
-                        )
-                        binding.viewModel?.latitude?.value = location.latitude
-                        binding.viewModel?.longitude?.value = location.longitude
-                        if (list != null) {
-                            binding.viewModel?.location?.value = (list[0].getAddressLine(0))
-                            binding.formLocationEditText.setText(list[0].getAddressLine(0))
-                        }
-                    } else {
-                        Log.v("ABECEKUT", "location not available")
-                    }
-                }
-            } else {
-                Toast.makeText(requireActivity(), "Please turn on location", Toast.LENGTH_LONG)
-                    .show()
-                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                startActivity(intent)
-            }
+            getCurrentLocation()
         } else {
             requestPermissions()
         }
     }
+
+    private fun setLocation(latitude: Double, longitude: Double) {
+        val geocoder = Geocoder(requireContext(), Locale.getDefault())
+        val list: MutableList<Address>? =
+            geocoder.getFromLocation(latitude, longitude, 1)
+        viewModel.latitude.value = latitude
+        viewModel.longitude.value = longitude
+        if (list != null) {
+            // TODO: check why this sometimes doesn't update the ui
+            viewModel.location.value = (list[0].getAddressLine(0))
+            location = (list[0].getAddressLine(0))
+//            Toast.makeText(requireActivity(), viewModel.location.value, Toast.LENGTH_SHORT)
+//                .show()
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getCurrentLocation() {
+        val defaultLatitude = -6.892382
+        val defaultLongitude = 107.608352
+
+        if (checkPermissions() && isLocationEnabled()) {
+            fusedLocationProviderClient.lastLocation.addOnCompleteListener(requireActivity()) { task ->
+                val location: Location? = task.result
+                if (location != null) {
+                    setLocation(location.latitude, location.longitude)
+                } else {
+                    Toast.makeText(requireActivity(), "Location set to default", Toast.LENGTH_SHORT)
+                        .show()
+                    setLocation(defaultLatitude, defaultLongitude)
+                }
+            }
+        } else {
+            Toast.makeText(requireActivity(), "Location set to default", Toast.LENGTH_SHORT)
+                .show()
+            setLocation(defaultLatitude, defaultLongitude)
+        }
+    }
+
 }
