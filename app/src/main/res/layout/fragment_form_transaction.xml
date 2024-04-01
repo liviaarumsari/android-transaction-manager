@@ -75,12 +75,29 @@
                 android:id="@+id/categoryAutocomplete"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@={viewModel.category}"
                 android:inputType="none"
-                android:labelFor="@+id/formCategoryContainer" />
+                android:labelFor="@+id/formCategoryContainer"
+                android:text="@={viewModel.category}" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
+
+        <Button
+            android:id="@+id/btnOpenMap"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:paddingTop="1dp"
+            android:paddingBottom="1dp"
+            android:layout_marginTop="8dp"
+            android:text="Open in Map"
+            android:textColor="@color/primary"
+            android:background="@android:color/transparent"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@+id/formCategoryContainer"
+            app:layout_constraintTop_toBottomOf="@+id/formCategoryContainer" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/formLocationContainer"
@@ -88,20 +105,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="5dp"
             app:helperTextTextColor="@color/destructive"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/formCategoryContainer">
+            app:layout_constraintTop_toBottomOf="@id/btnOpenMap">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/formLocationEditText"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="@={viewModel.location}"
                 android:hint="Location"
                 android:inputType="text"
-                android:lines="1" />
+                android:lines="1"
+                android:text="@={viewModel.location}" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
