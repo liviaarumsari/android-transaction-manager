@@ -17,6 +17,7 @@ import com.example.abe.data.network.LoginResultCallback
 import com.example.abe.data.network.Retrofit
 import com.example.abe.databinding.ActivityLoginBinding
 import com.example.abe.utils.isConnected
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -32,6 +33,7 @@ class LoginActivity : AppCompatActivity(), LoginResultCallback {
     }
 
     private lateinit var connectivityObserver: ConnectivityObserver
+    private var networkState: ConnectivityObserver.NetworkState? = null
 
     override fun onSuccess(loginResponse: com.example.abe.data.network.LoginResponse) {
         // Handle successful login
@@ -67,6 +69,7 @@ class LoginActivity : AppCompatActivity(), LoginResultCallback {
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
         connectivityObserver.observe().onEach {
             Log.v("abecekut", "Status is $it")
+            networkState = it
             if (it == ConnectivityObserver.NetworkState.UNAVAILABLE || it == ConnectivityObserver.NetworkState.LOST) {
                 runOnUiThread {
                     val builder: AlertDialog.Builder = AlertDialog.Builder(this@LoginActivity)
@@ -84,7 +87,6 @@ class LoginActivity : AppCompatActivity(), LoginResultCallback {
         binding.btnSignIn.setOnClickListener {
             email = binding.emailInput.text.toString()
             val password: String = binding.passwordInput.text.toString()
-            val networkState = connectivityObserver.observe().asLiveData().value
 
             if (!isConnected(networkState)) {
                 binding.loginLayout.visibility = View.GONE
