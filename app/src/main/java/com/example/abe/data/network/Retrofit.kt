@@ -76,7 +76,7 @@ class Retrofit {
 
         call.enqueue(object : Callback<CheckAuthResponse> {
             override fun onResponse(call: Call<CheckAuthResponse>, response: Response<CheckAuthResponse>) {
-                if (response.isSuccessful) {
+                if (!response.isSuccessful) {
                     callback.onFailure()
                 }
             }

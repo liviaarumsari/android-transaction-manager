@@ -1,11 +1,13 @@
 package com.example.abe
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -19,6 +21,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.example.abe.connection.ConnectivityObserver
+import com.example.abe.connection.NetworkConnectivityObserver
 import com.example.abe.databinding.ActivityMainBinding
 import com.example.abe.services.AuthService
 import com.example.abe.types.FragmentListener
@@ -28,6 +32,8 @@ import com.example.abe.ui.transactions.ExportAlertDialogTypeEnum
 import com.example.abe.ui.transactions.ExportLoadDialogFragment
 import com.example.abe.ui.transactions.TransactionFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertDialogListener,
@@ -39,6 +45,9 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
     private val viewModel: MainActivityViewModel by viewModels {
         MainActivityViewModelFactory((application as ABEApplication).repository)
     }
+
+    private lateinit var connectivityObserver: ConnectivityObserver
+    private lateinit var networkState:ConnectivityObserver.NetworkState
 
     private val filter = IntentFilter().apply {
         addAction("RANDOMIZE_TRANSACTION")
@@ -89,6 +98,26 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
 
         val serviceIntent = Intent(this, AuthService::class.java)
         startService(serviceIntent);
+
+        connectivityObserver = NetworkConnectivityObserver(applicationContext)
+        connectivityObserver.observe().onEach {
+            networkState = it
+            Log.v("abecekut", "Status is $it")
+            if (it == ConnectivityObserver.NetworkState.UNAVAILABLE || it == ConnectivityObserver.NetworkState.LOST) {
+                runOnUiThread {
+                    val builder: AlertDialog.Builder = AlertDialog.Builder(this@MainActivity)
+                    builder
+                        .setMessage("We are having trouble connecting you to the internet")
+                        .setTitle("No Connection")
+                        .setPositiveButton("OK") { dialog, which ->
+                            // Do something.
+                        }
+
+                    val dialog: AlertDialog = builder.create()
+                    dialog.show()
+                }
+            }
+        }.launchIn(lifecycleScope)
     }
 
     override fun onIntentReceived(action: String, info: String?) {
