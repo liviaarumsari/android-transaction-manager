@@ -9,6 +9,7 @@ import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -19,6 +20,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.addCallback
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -81,6 +83,7 @@ class FormTransaction : Fragment() {
         titleFocusListener()
         amountFocusListener()
         categoryFocusListener()
+        openInMapListener()
         locationFocusListener()
 
         saveButtonListener()
@@ -101,15 +104,25 @@ class FormTransaction : Fragment() {
                 displayTrx(trxId)
             } else if (args.containsKey("random_amount")) {
                 viewModel.setRandomAmount(args.getInt("random_amount"))
-                binding.btnDelete.visibility = View.GONE
+                useNewTrxLayout()
             }
         } else {
-            binding.btnDelete.visibility = View.GONE
+            useNewTrxLayout()
         }
 
         return binding.root
     }
 
+    private fun useNewTrxLayout() {
+        binding.btnDelete.visibility = View.GONE
+        binding.btnOpenMap.visibility = View.GONE
+
+        ConstraintSet().apply {
+            clone(binding.formTransaction)
+            connect(R.id.formLocationContainer, ConstraintSet.TOP, R.id.formCategoryContainer, ConstraintSet.BOTTOM, 5)
+            applyTo(binding.formTransaction)
+        }
+    }
 
     private fun displayTrx(idTrx: Int) {
         id = idTrx
@@ -147,6 +160,17 @@ class FormTransaction : Fragment() {
                             .isEmpty()
                     ) "Category is required" else null
             }
+        }
+    }
+
+    private fun openInMapListener() {
+        binding.btnOpenMap.setOnClickListener {
+            val destinationLatitude = viewModel.latitude.value.toString()
+            val destinationLongitude = viewModel.longitude.value.toString()
+
+            val mapUri = Uri.parse("https://maps.google.com/maps?daddr=$destinationLatitude,$destinationLongitude")
+            val intent = Intent(Intent.ACTION_VIEW, mapUri)
+            startActivity(intent)
         }
     }
 
