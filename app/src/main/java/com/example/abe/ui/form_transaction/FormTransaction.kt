@@ -21,6 +21,7 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.addCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
@@ -53,8 +54,7 @@ class FormTransaction : Fragment() {
     private var location: String? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         super.onCreate(savedInstanceState)
 
@@ -95,8 +95,7 @@ class FormTransaction : Fragment() {
         getLocation()
 
         val sharedPref = requireActivity().getSharedPreferences(
-            getString(R.string.preference_file_key),
-            Context.MODE_PRIVATE
+            getString(R.string.preference_file_key), Context.MODE_PRIVATE
         )
         user = sharedPref.getString("user", "").toString()
 
@@ -194,8 +193,7 @@ class FormTransaction : Fragment() {
 
             if (binding.formTitleEditText.text.toString()
                     .isNotEmpty() && binding.formAmountEditText.text.toString()
-                    .isNotEmpty() && binding.categoryAutocomplete.text.toString()
-                    .isNotEmpty()
+                    .isNotEmpty() && binding.categoryAutocomplete.text.toString().isNotEmpty()
             ) {
                 if (id != null) {
                     viewModel.updateTransaction(id!!)
@@ -211,8 +209,7 @@ class FormTransaction : Fragment() {
         binding.btnDelete.setOnClickListener {
             id?.let {
                 val builder: AlertDialog.Builder = AlertDialog.Builder(requireContext())
-                builder
-                    .setMessage("Are you sure you want to delete this transaction?")
+                builder.setMessage("Are you sure you want to delete this transaction?")
                     .setPositiveButton("Delete") { dialog, which ->
                         viewModel.deleteTransaction(id!!)
                         findNavController().navigateUp()
@@ -235,12 +232,9 @@ class FormTransaction : Fragment() {
 
     private fun checkPermissions(): Boolean {
         if (ActivityCompat.checkSelfPermission(
-                requireActivity(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(
-                requireActivity(),
-                Manifest.permission.ACCESS_FINE_LOCATION
+                requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             return true
@@ -248,33 +242,28 @@ class FormTransaction : Fragment() {
         return false
     }
 
-    private fun requestPermissions() {
-        ActivityCompat.requestPermissions(
-            requireActivity(),
+    private fun askForPermissions() {
+        requestPermissionsLauncher.launch(
             arrayOf(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ),
-            permissionId
+                Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
+            )
         )
     }
 
-    @SuppressLint("MissingSuperCall")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == permissionId) {
-            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                getCurrentLocation()
-            } else {
-                val defaultLatitude = -6.892382
-                val defaultLongitude = 107.608352
-                Toast.makeText(requireActivity(), "Location set to default", Toast.LENGTH_SHORT)
-                    .show()
-                setLocation(defaultLatitude, defaultLongitude)
-            }
+    private var requestPermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        var granted = false
+        permissions.entries.forEach {
+            if (it.value) granted = true
+        }
+        if (granted) {
+            getCurrentLocation()
+        } else {
+            val defaultLatitude = -6.892382
+            val defaultLongitude = 107.608352
+            Toast.makeText(requireActivity(), "Location set to default", Toast.LENGTH_SHORT).show()
+            setLocation(defaultLatitude, defaultLongitude)
         }
     }
 
@@ -282,14 +271,13 @@ class FormTransaction : Fragment() {
         if (checkPermissions()) {
             getCurrentLocation()
         } else {
-            requestPermissions()
+            askForPermissions()
         }
     }
 
     private fun setLocation(latitude: Double, longitude: Double) {
         val geocoder = Geocoder(requireContext(), Locale.getDefault())
-        val list: MutableList<Address>? =
-            geocoder.getFromLocation(latitude, longitude, 1)
+        val list: MutableList<Address>? = geocoder.getFromLocation(latitude, longitude, 1)
         viewModel.latitude.value = latitude
         viewModel.longitude.value = longitude
         if (list != null) {
@@ -318,8 +306,7 @@ class FormTransaction : Fragment() {
                 }
             }
         } else {
-            Toast.makeText(requireActivity(), "Location set to default", Toast.LENGTH_SHORT)
-                .show()
+            Toast.makeText(requireActivity(), "Location set to default", Toast.LENGTH_SHORT).show()
             setLocation(defaultLatitude, defaultLongitude)
         }
     }
