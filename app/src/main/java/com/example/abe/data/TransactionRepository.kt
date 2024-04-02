@@ -29,4 +29,10 @@ class TransactionRepository(private val transactionDAO: TransactionDAO) {
     suspend fun update(vararg transaction: Transaction) {
         transactionDAO.update(*transaction)
     }
+
+    @WorkerThread
+    suspend fun getExpenseTotalAmount(isExpense: Boolean): Int {
+//        TODO: check only for transactions by current user
+        return transactionDAO.getExpenseTotalAmount(isExpense)
+    }
 }

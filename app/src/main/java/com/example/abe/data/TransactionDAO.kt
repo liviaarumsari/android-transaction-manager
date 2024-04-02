@@ -30,4 +30,8 @@ interface TransactionDAO {
 
     @Query("DELETE FROM transactions WHERE id = :id")
     suspend fun deleteById(id: Int)
+
+//    TODO: check only for transactions by current user
+    @Query("SELECT SUM(amount) FROM transactions WHERE isExpense = :isExpense")
+    suspend fun getExpenseTotalAmount(isExpense: Boolean): Int
 }

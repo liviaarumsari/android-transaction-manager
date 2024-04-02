@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -64,7 +63,7 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
 
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_transactions
+                R.id.navigation_transactions, R.id.navigation_graph
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)

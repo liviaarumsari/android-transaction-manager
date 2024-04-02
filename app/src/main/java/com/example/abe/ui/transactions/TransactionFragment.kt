@@ -24,10 +24,6 @@ class TransactionFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-    companion object {
-        fun newInstance() = TransactionFragment()
-    }
-
     interface ItemClickListener {
         fun onItemClicked(id: Int)
     }
@@ -46,6 +42,7 @@ class TransactionFragment : Fragment() {
         binding.rvTransactions.adapter = transactionsAdapter
         binding.rvTransactions.layoutManager = LinearLayoutManager(context)
 
+//        TODO: check only for transactions by current user
         viewModel.allTransactions.observe(viewLifecycleOwner) { transactions ->
             transactions?.let {
                 transactionsAdapter.submitList(it)

@@ -1,5 +1,6 @@
 package com.example.abe.ui.form_transaction
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -34,7 +35,7 @@ class FormTransactionViewModel(private val transactionRepository: TransactionRep
                 email = user,
                 title = title.value!!,
                 amount = amountNumber.value!!,
-                isExpense = category.value == "Expense",
+                isExpense = category.value == "Expenses",
                 timestamp = Date(),
                 latitude = latitude.value!!,
                 longitude = longitude.value!!,
