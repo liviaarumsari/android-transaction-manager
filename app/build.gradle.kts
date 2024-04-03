@@ -33,6 +33,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        dataBinding = true
     }
 }
 
@@ -53,6 +54,8 @@ dependencies {
     implementation(libs.androidx.retrofit.gson)
     implementation(libs.poi)
     implementation(libs.poi.ooxml)
+    implementation(libs.androidx.activity)
+    implementation(libs.play.services.location)
     implementation(libs.camera.core)
     implementation(libs.camera.lifecycle)
     implementation(libs.camera.view)

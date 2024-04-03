@@ -26,7 +26,7 @@ class TransactionRepository(private val transactionDAO: TransactionDAO) {
     }
 
     @WorkerThread
-    suspend fun udpate(vararg transaction: Transaction) {
+    suspend fun update(vararg transaction: Transaction) {
         transactionDAO.update(*transaction)
     }
 }
