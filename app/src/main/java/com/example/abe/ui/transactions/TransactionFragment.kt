@@ -1,14 +1,12 @@
 package com.example.abe.ui.transactions
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.abe.ABEApplication
 import com.example.abe.databinding.FragmentTransactionsBinding
@@ -49,24 +47,6 @@ class TransactionFragment : Fragment() {
         viewModel.allTransactions.observe(viewLifecycleOwner) { transactions ->
             transactions?.let {
                 transactionsAdapter.submitList(it)
-            }
-        }
-
-        binding.fabExport.setOnClickListener {
-            ExportAlertDialogFragment.newInstance(ExportAlertDialogTypeEnum.EXPORT)
-                .show(requireActivity().supportFragmentManager, "EXPORT_DIALOG")
-        }
-
-        binding.fabEmail.setOnClickListener {
-            ExportAlertDialogFragment.newInstance(ExportAlertDialogTypeEnum.SEND_EMAIL)
-                .show(requireActivity().supportFragmentManager, "EXPORT_DIALOG")
-        }
-
-        binding.fabRandom.setOnClickListener {
-            Intent().also { intent ->
-                intent.setAction("RANDOMIZE_TRANSACTION")
-                intent.putExtra("random_amount", (10000..100000).random())
-                LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent)
             }
         }
 

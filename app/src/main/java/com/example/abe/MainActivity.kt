@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -61,6 +60,9 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
                     val bundle = Bundle().apply {
                         putInt("random_amount", randomAmount)
                     }
+                    navController.navigate(
+                        R.id.action_navigation_settings_to_navigation_transactions
+                    )
                     navController.navigate(
                         R.id.action_navigation_transactions_to_navigation_form_transaction,
                         bundle
