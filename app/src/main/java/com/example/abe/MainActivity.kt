@@ -88,7 +88,9 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
 
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_transactions
+                R.id.navigation_transactions,
+                R.id.navigation_settings,
+                R.id.navigation_scan
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
