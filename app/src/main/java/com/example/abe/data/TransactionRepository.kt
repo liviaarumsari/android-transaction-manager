@@ -1,9 +1,13 @@
 package com.example.abe.data
 
 import androidx.annotation.WorkerThread
+import androidx.lifecycle.LiveData
 
 class TransactionRepository(private val transactionDAO: TransactionDAO) {
-    val allTransaction = transactionDAO.getAll()
+
+    fun getAll(email: String): LiveData<List<Transaction>> {
+        return transactionDAO.getAll(email)
+    }
 
     @WorkerThread
     suspend fun getById(id: Int): Transaction {
@@ -31,8 +35,7 @@ class TransactionRepository(private val transactionDAO: TransactionDAO) {
     }
 
     @WorkerThread
-    suspend fun getExpenseTotalAmount(isExpense: Boolean): Int {
-//        TODO: check only for transactions by current user
-        return transactionDAO.getExpenseTotalAmount(isExpense)
+    suspend fun getExpenseTotalAmount(isExpense: Boolean, email: String): Int {
+        return transactionDAO.getExpenseTotalAmount(isExpense, email)
     }
 }

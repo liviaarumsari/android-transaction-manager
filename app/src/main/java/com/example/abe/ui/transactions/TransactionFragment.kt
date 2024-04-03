@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.abe.ABEApplication
+import com.example.abe.R
 import com.example.abe.databinding.FragmentTransactionsBinding
 import com.example.abe.types.FragmentListener
 
@@ -42,8 +43,14 @@ class TransactionFragment : Fragment() {
         binding.rvTransactions.adapter = transactionsAdapter
         binding.rvTransactions.layoutManager = LinearLayoutManager(context)
 
+        val sharedPref = requireActivity().getSharedPreferences(
+            getString(R.string.preference_file_key),
+            Context.MODE_PRIVATE
+        )
+        val user = sharedPref.getString("user", "").toString()
+
 //        TODO: check only for transactions by current user
-        viewModel.allTransactions.observe(viewLifecycleOwner) { transactions ->
+        viewModel.getAllTransactions(user).observe(viewLifecycleOwner) { transactions ->
             transactions?.let {
                 transactionsAdapter.submitList(it)
             }

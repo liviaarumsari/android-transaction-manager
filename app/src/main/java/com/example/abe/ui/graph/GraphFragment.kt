@@ -1,5 +1,6 @@
 package com.example.abe.ui.graph
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -39,8 +40,13 @@ class GraphFragment : Fragment() {
     }
 
     private fun drawGraph() = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-        val expenses = viewModel.getExpenses().toDouble()
-        val income = viewModel.getIncome().toDouble()
+        val sharedPref = requireActivity().getSharedPreferences(
+            getString(R.string.preference_file_key),
+            Context.MODE_PRIVATE
+        )
+        val user = sharedPref.getString("user", "").toString()
+        val expenses = viewModel.getExpenses(user).toDouble()
+        val income = viewModel.getIncome(user).toDouble()
 
         withContext(Dispatchers.Main) {
             val total = expenses + income
@@ -59,8 +65,8 @@ class GraphFragment : Fragment() {
             binding.tvIncomeAmount.text = currencyFormatter(income.toInt())
 
             val entries = ArrayList<PieEntry>().apply {
-                add(PieEntry(expenses.toFloat(), "Pengeluaran"))
-                add(PieEntry(income.toFloat(), "Pemasukan"))
+                add(PieEntry(expenses.toFloat(), "Expenses"))
+                add(PieEntry(income.toFloat(), "Income"))
             }
 
             val entryColors = ArrayList<Int>().apply {
@@ -69,7 +75,7 @@ class GraphFragment : Fragment() {
             }
 
 
-            val dataSet = PieDataSet(entries, "Pemasukan & Pengeluaran").apply {
+            val dataSet = PieDataSet(entries, "Income & Expenses").apply {
                 colors = entryColors
                 setDrawValues(false)
                 xValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE

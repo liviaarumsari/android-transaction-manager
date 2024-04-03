@@ -22,8 +22,8 @@ interface TransactionDAO {
     @Query("DELETE FROM transactions")
     suspend fun deleteAll()
 
-    @Query("SELECT * FROM transactions")
-    fun getAll(): LiveData<List<Transaction>>
+    @Query("SELECT * FROM transactions WHERE email = :email")
+    fun getAll(vararg email: String): LiveData<List<Transaction>>
 
     @Query("SELECT * FROM transactions WHERE id = :id")
     suspend fun getById(id: Int): Transaction
@@ -31,7 +31,6 @@ interface TransactionDAO {
     @Query("DELETE FROM transactions WHERE id = :id")
     suspend fun deleteById(id: Int)
 
-//    TODO: check only for transactions by current user
-    @Query("SELECT SUM(amount) FROM transactions WHERE isExpense = :isExpense")
-    suspend fun getExpenseTotalAmount(isExpense: Boolean): Int
+    @Query("SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE isExpense = :isExpense AND email = :email")
+    suspend fun getExpenseTotalAmount(isExpense: Boolean, email: String): Int
 }

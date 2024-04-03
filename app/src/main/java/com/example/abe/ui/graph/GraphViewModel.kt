@@ -5,14 +5,12 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.abe.data.TransactionRepository
 
 class GraphViewModel(private val transactionRepository: TransactionRepository) : ViewModel() {
-    suspend fun getExpenses(): Int {
-//        TODO: check only for transactions by current user
-        return transactionRepository.getExpenseTotalAmount(true)
+    suspend fun getExpenses(user: String): Int {
+        return transactionRepository.getExpenseTotalAmount(true, user)
     }
 
-    suspend fun getIncome(): Int {
-//        TODO: check only for transactions by current user
-        return transactionRepository.getExpenseTotalAmount(false)
+    suspend fun getIncome(user: String): Int {
+        return transactionRepository.getExpenseTotalAmount(false, user)
     }
 }
 
