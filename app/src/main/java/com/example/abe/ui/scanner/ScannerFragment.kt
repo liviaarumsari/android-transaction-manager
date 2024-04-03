@@ -120,26 +120,54 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         retrofit.upload(context, imageFile, this)
     }
 
+    private fun showPreviewDialog(imageUri: Uri) {
+        val dialog = Dialog(requireContext()).apply {
+            setContentView(R.layout.dialog_image_preview)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+
+        val imageView = dialog.findViewById<ImageView>(R.id.dialog_image_view)
+
+        Glide.with(requireContext())
+            .load(imageUri)
+            .into(imageView)
+
+        val confirmButton = dialog.findViewById<Button>(R.id.confirm_button)
+        val cancelButton = dialog.findViewById<Button>(R.id.cancel_button)
+
+        confirmButton.setOnClickListener {
+            val filePath = imageUri.path
+            if (filePath != null) {
+                val imageFile = File(filePath)
+                attemptUpload(imageFile)
+
+                val msg = "Photo sent!"
+                Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                Log.d(TAG, msg)
+
+                dialog.dismiss()
+            } else {
+                Log.e(TAG, "File path is null for imageUri: $imageUri")
+                dialog.dismiss()
+            }
+        }
+
+        cancelButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
     private fun takePicture() {
         val imageCapture = imageCapture
 
-        val photoFile = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
-            .format(System.currentTimeMillis()) + ".jpg"
+        val photoFile = File(
+            requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+            SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis()) + ".jpg"
+        )
 
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, photoFile)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + File.separator + "ABE")
-        }
-
-        val photoUri = requireContext().contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-
-        val resolver = requireContext().contentResolver
-        val parcelFileDescriptor = resolver.openFileDescriptor(photoUri!!, "w")
-        val outputStream = FileOutputStream(parcelFileDescriptor!!.fileDescriptor)
-
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(outputStream)
-            .build()
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
         imageCapture.takePicture(
             outputOptions,
@@ -150,52 +178,13 @@ class ScannerFragment : Fragment(), UploadResultCallback {
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    val savedUri = output.savedUri ?: Uri.EMPTY
-
-                    // Create a dialog
-                    val dialog = Dialog(requireContext()).apply {
-                        setContentView(R.layout.dialog_image_preview)
-                        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                    }
-
-                    // Get the ImageView from the dialog layout
-                    val imageView = dialog.findViewById<ImageView>(R.id.dialog_image_view)
-
-                    // Load the image into the ImageView
-                    Glide.with(requireContext())
-                        .load(savedUri)
-                        .into(imageView)
-
-                    // Get the confirmation button from the dialog layout
-                    val confirmButton = dialog.findViewById<Button>(R.id.confirm_button)
-                    val cancelButton = dialog.findViewById<Button>(R.id.cancel_button)
-
-                    // Set a click listener for the confirmation button
-                    confirmButton.setOnClickListener {
-                        val imageFile = File(savedUri.path.toString())
-                        attemptUpload(imageFile)
-
-                        val msg = "Photo sent!"
-                        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-                        Log.d(TAG, msg)
-
-                        // Dismiss the dialog
-                        dialog.dismiss()
-                    }
-
-                    cancelButton.setOnClickListener {
-                        // Dismiss the dialog
-                        dialog.dismiss()
-                    }
-
-                    // Show the dialog
-                    dialog.show()
+                    // Proceed with further operations
+                    val savedUri = Uri.fromFile(photoFile)
+                    showPreviewDialog(savedUri)
                 }
             }
         )
-        parcelFileDescriptor.close()
     }
-
     override fun onSuccess(uploadResponse: ItemsRoot) {
         // TODO send the data to database
     }
