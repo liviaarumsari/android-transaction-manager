@@ -3,7 +3,7 @@ package com.example.abe.ui.scanner
 import android.Manifest
 import android.app.Activity
 import android.app.Dialog
-import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -11,7 +11,6 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -28,12 +27,16 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.abe.R
 import androidx.camera.core.*
+import androidx.fragment.app.viewModels
+import com.example.abe.ABEApplication
 import com.example.abe.data.network.Retrofit
 import com.example.abe.data.network.ItemsRoot
+import com.example.abe.data.network.TransactionItem
 import com.example.abe.data.network.UploadResultCallback
 import com.example.abe.databinding.FragmentScanBinding
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import java.io.File
-import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.ExecutorService
@@ -46,6 +49,15 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var cameraView: PreviewView
     private lateinit var imageCapture: ImageCapture
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var latitude = 0.0
+    private var longitude = 0.0
+
+    private lateinit var user: String
+
+    private val viewModel: ScannerViewModel by viewModels {
+        ScannerViewModelFactory((activity?.application as ABEApplication).repository)
+    }
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
@@ -71,6 +83,9 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         requestPermissions()
+
+        val sharedPref = activity?.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        user = sharedPref?.getString("user", "").toString()
 
         binding.captureButton.setOnClickListener {
             takePicture()
@@ -185,12 +200,38 @@ class ScannerFragment : Fragment(), UploadResultCallback {
             }
         )
     }
+
+    private fun getLastLocation() {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.lastLocation
+                .addOnSuccessListener { location: android.location.Location? ->
+                    location?.let {
+                        latitude = location.latitude
+                        longitude = location.longitude
+                        Log.d(TAG, "Latitude: $latitude, Longitude: $longitude")
+                        // Now you have latitude and longitude, pass them to insertTransaction
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Failed to get location: ${e.message}", e)
+                }
+        } else {
+            // Handle the case where location permission is not granted
+            Log.e(TAG, "Location permission not granted")
+            // You may want to request the permission again or handle it in some other way
+        }
+    }
+
     override fun onSuccess(uploadResponse: ItemsRoot) {
-        // TODO send the data to database
+        uploadResponse.items.items.forEach {item ->
+            viewModel.insertTransaction(user, item, latitude, longitude)
+        }
     }
 
     override fun onFailure(errorMessage: String) {
-        // TODO handle failed to get response
+        println("Scan Error! $errorMessage")
     }
 
     private fun openGallery() {
@@ -223,6 +264,7 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         super.onViewCreated(view, savedInstanceState)
         if (allPermissionsGranted()) {
             startCamera()
+            getLastLocation()
         } else {
             ActivityCompat.requestPermissions(
                 requireActivity(), REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)

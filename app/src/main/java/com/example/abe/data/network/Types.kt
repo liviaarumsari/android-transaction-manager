@@ -9,14 +9,14 @@ data class LoginResponse (
     val token: String
 )
 
-data class Item(
+data class TransactionItem(
     val name: String,
     val qty: Int,
     val price: Double
 )
 
 data class ItemsContainer(
-    val items: List<Item>
+    val items: List<TransactionItem>
 )
 
 data class ItemsRoot(

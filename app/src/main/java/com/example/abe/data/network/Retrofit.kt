@@ -64,6 +64,22 @@ class Retrofit {
         val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
 
         val call: Call<ItemsRoot> = scannerService.uploadScan(authHeader, body)
+
+        call.enqueue(object: Callback<ItemsRoot> {
+            override fun onResponse(call: Call<ItemsRoot>, response: Response<ItemsRoot>) {
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        callback.onSuccess(it)
+                    }
+                } else {
+                    callback.onFailure("Scan failed")
+                }
+            }
+
+            override fun onFailure(call: Call<ItemsRoot>, t: Throwable) {
+                callback.onFailure("Failed to send request")
+            }
+        })
     }
 
 }

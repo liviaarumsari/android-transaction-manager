@@ -9,7 +9,6 @@ import com.example.abe.R
 import com.example.abe.data.network.LoginResultCallback
 import com.example.abe.data.network.Retrofit
 import com.example.abe.databinding.ActivityLoginBinding
-import com.example.abe.data.network.LoginResponse
 
 class LoginActivity : AppCompatActivity(), LoginResultCallback {
 
