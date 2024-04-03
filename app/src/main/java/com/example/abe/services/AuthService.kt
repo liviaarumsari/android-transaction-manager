@@ -3,8 +3,10 @@ package com.example.abe.services
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
 
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -15,20 +17,21 @@ import com.example.abe.data.network.Retrofit
 
 
 class AuthService : Service(), CheckAuthResultCallback {
+    var isRunning: Boolean = false
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        isRunning = true
         Thread {
-            while (true) {
-                Log.v("Servicecekut", "Service is running...")
+            while (isRunning) {
+                Log.d("ABE-SRV", "Service still running")
                 val retrofit = Retrofit()
                 val sharedPref = getSharedPreferences(
                     getString(R.string.preference_file_key),
                     Context.MODE_PRIVATE
                 )
                 val token = sharedPref.getString("login_token", "").toString()
-                Log.v("Servicecekut", token)
                 retrofit.checkAuth(token, this)
                 try {
-                    Thread.sleep(30000)
+                    Thread.sleep(10000)
                 } catch (e: InterruptedException) {
                     e.printStackTrace()
                 }
@@ -46,5 +49,9 @@ class AuthService : Service(), CheckAuthResultCallback {
             intent.setAction("EXPIRED_TOKEN")
             LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
         }
+    }
+
+    override fun onDestroy() {
+        isRunning = false
     }
 }

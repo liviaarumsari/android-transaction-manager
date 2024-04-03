@@ -107,7 +107,6 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
         connectivityObserver.observe().onEach {
             networkState = it
-            Log.v("abecekut", "Status is $it")
             if (it == ConnectivityObserver.NetworkState.UNAVAILABLE || it == ConnectivityObserver.NetworkState.LOST) {
                 runOnUiThread {
                     val builder: AlertDialog.Builder = AlertDialog.Builder(this@MainActivity)

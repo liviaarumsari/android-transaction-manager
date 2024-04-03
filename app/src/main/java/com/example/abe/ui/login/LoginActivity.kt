@@ -68,7 +68,6 @@ class LoginActivity : AppCompatActivity(), LoginResultCallback {
 
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
         connectivityObserver.observe().onEach {
-            Log.v("abecekut", "Status is $it")
             networkState = it
             if (it == ConnectivityObserver.NetworkState.UNAVAILABLE || it == ConnectivityObserver.NetworkState.LOST) {
                 runOnUiThread {

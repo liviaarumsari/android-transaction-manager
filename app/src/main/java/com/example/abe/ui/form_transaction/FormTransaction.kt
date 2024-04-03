@@ -188,7 +188,6 @@ class FormTransaction : Fragment() {
 
             if (binding.formLocationEditText.text.toString().isEmpty()) {
                 binding.formLocationEditText.setText(location)
-                Log.v("abecekut", "location is $location")
             }
 
             if (binding.formTitleEditText.text.toString()
