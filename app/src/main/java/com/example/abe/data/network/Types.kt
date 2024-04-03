@@ -22,3 +22,9 @@ data class ItemsContainer(
 data class ItemsRoot(
     val items: ItemsContainer
 )
+
+data class CheckAuthResponse (
+    val nim: String,
+    val iat: String,
+    val exp: String
+)

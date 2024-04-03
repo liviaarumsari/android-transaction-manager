@@ -4,6 +4,9 @@ import android.content.Context
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import android.preference.PreferenceManager
+import com.example.abe.R
+import com.example.abe.services.AuthService
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -19,6 +22,32 @@ interface LoginResultCallback {
 interface UploadResultCallback {
     fun onSuccess(uploadResponse: ItemsRoot)
     fun onFailure(errorMessage: String)
+
+interface CheckAuthResultCallback {
+    fun onFailure()
+}
+
+class CallBack<T> : Callback<T> {
+    override fun onResponse(call: Call<T>, response: Response<T>) {
+        if (response.isSuccessful) {
+            // Handle successful response
+            val data = response.body()
+            // Process the data here
+            if (data is LoginResponse) {
+                // Handle LoginResponse
+                println("Login successful $data")
+            }
+        } else {
+            // Handle error response
+            // Maybe use response.errorBody() to get error details
+            println("Login failed")
+        }
+    }
+
+    override fun onFailure(call: Call<T>, t: Throwable) {
+        // Handle failure
+        println("Failed to send request")
+    }
 }
 
 class Retrofit {
@@ -82,4 +111,20 @@ class Retrofit {
         })
     }
 
+    fun checkAuth(token: String, callback: CheckAuthResultCallback) {
+        val checkAuthService = retrofit.create(CheckAuthService::class.java)
+        val call: Call<CheckAuthResponse> = checkAuthService.checkAuth("Bearer $token")
+
+        call.enqueue(object : Callback<CheckAuthResponse> {
+            override fun onResponse(call: Call<CheckAuthResponse>, response: Response<CheckAuthResponse>) {
+                if (!response.isSuccessful) {
+                    callback.onFailure()
+                }
+            }
+
+            override fun onFailure(call: Call<CheckAuthResponse>, t: Throwable) {
+                callback.onFailure()
+            }
+        })
+    }
 }
