@@ -22,6 +22,7 @@ interface LoginResultCallback {
 interface UploadResultCallback {
     fun onSuccess(uploadResponse: ItemsRoot)
     fun onFailure(errorMessage: String)
+}
 
 interface CheckAuthResultCallback {
     fun onFailure()

@@ -20,6 +20,7 @@ interface ScannerService {
         @Header("Authorization") authHeader: String,
         @Part file: MultipartBody.Part
     ): Call<ItemsRoot>
+}
 
 interface CheckAuthService {
     @POST("api/auth/token")
