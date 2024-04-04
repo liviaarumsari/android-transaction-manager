@@ -13,6 +13,7 @@
         android:layout_height="48dp"
         android:clickable="true"
         android:focusable="true"
+        android:background="@drawable/bg_graph_detail_item"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -49,6 +50,7 @@
         android:layout_height="48dp"
         android:clickable="true"
         android:focusable="true"
+        android:background="@drawable/bg_graph_detail_item"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/clSave"
         app:layout_constraintTop_toBottomOf="@+id/clSave">
@@ -82,6 +84,7 @@
         android:layout_height="48dp"
         android:clickable="true"
         android:focusable="true"
+        android:background="@drawable/bg_graph_detail_item"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/clSend"
         app:layout_constraintTop_toBottomOf="@+id/clSend">
@@ -115,6 +118,7 @@
         android:layout_height="48dp"
         android:clickable="true"
         android:focusable="true"
+        android:background="@drawable/bg_graph_detail_item"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/clRandomize"
         app:layout_constraintTop_toBottomOf="@+id/clRandomize">
