@@ -107,6 +107,12 @@ class ScannerFragment : Fragment(), UploadResultCallback {
                 if (imageUri != null) {
                     val imageFile = uriToFile(imageUri)
                     attemptUpload(imageFile)
+
+                    val msg = "Uploading photo, please wait"
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                } else {
+                    val msg = "Failed to fetch image from gallery"
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -120,7 +126,6 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         if (!cameraPermissionGranted()) {
-            Log.d("ABE-PHO", "premissions not granter")
             requestCameraPermission()
         } else {
             startCamera()
@@ -341,7 +346,8 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     }
 
     override fun onFailure(errorMessage: String) {
-        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "Upload failed", Toast.LENGTH_SHORT).show()
+        Log.e("ABE-PHO", errorMessage)
     }
 
     private fun openGallery() {

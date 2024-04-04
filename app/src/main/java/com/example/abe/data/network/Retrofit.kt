@@ -117,11 +117,11 @@ class Retrofit {
 
         call.enqueue(object: Callback<ItemsRoot> {
             override fun onResponse(call: Call<ItemsRoot>, response: Response<ItemsRoot>) {
-                Log.d("ABE-PHO", "response: " + Gson().toJson(response.body()))
-                Log.d("ABE-PHO", "error: " + Gson().toJson(response.errorBody()))
-                Log.d("ABE-PHO", "code: " + response.code())
-                Log.d("ABE-PHO", "headers: " + response.headers())
-                Log.d("ABE-PHO", "message: " + response.message())
+//                Log.d("ABE-PHO", "response: " + Gson().toJson(response.body()))
+//                Log.d("ABE-PHO", "error: " + Gson().toJson(response.errorBody()))
+//                Log.d("ABE-PHO", "code: " + response.code())
+//                Log.d("ABE-PHO", "headers: " + response.headers())
+//                Log.d("ABE-PHO", "message: " + response.message())
 
                 if (response.isSuccessful) {
                     response.body()?.let {
