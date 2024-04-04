@@ -11,10 +11,10 @@
 <!--        android:icon="@drawable/ic_scan"-->
 <!--        android:title="Scan" />-->
 
-<!--    <item-->
-<!--        android:id="@+id/navigation_graph"-->
-<!--        android:icon="@drawable/ic_graph"-->
-<!--        android:title="Graph" />-->
+    <item
+        android:id="@+id/navigation_graph"
+        android:icon="@drawable/ic_graph"
+        android:title="Graph" />
 
 <!--    <item-->
 <!--        android:id="@+id/navigation_settings"-->

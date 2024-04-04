@@ -1,9 +1,13 @@
 package com.example.abe.data
 
 import androidx.annotation.WorkerThread
+import androidx.lifecycle.LiveData
 
 class TransactionRepository(private val transactionDAO: TransactionDAO) {
-    val allTransaction = transactionDAO.getAll()
+
+    fun getAll(email: String): LiveData<List<Transaction>> {
+        return transactionDAO.getAll(email)
+    }
 
     @WorkerThread
     suspend fun getById(id: Int): Transaction {
@@ -28,5 +32,10 @@ class TransactionRepository(private val transactionDAO: TransactionDAO) {
     @WorkerThread
     suspend fun update(vararg transaction: Transaction) {
         transactionDAO.update(*transaction)
+    }
+
+    @WorkerThread
+    suspend fun getExpenseTotalAmount(isExpense: Boolean, email: String): Int {
+        return transactionDAO.getExpenseTotalAmount(isExpense, email)
     }
 }

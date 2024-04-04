@@ -8,7 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -49,6 +49,8 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
     private lateinit var connectivityObserver: ConnectivityObserver
     private lateinit var networkState:ConnectivityObserver.NetworkState
 
+    private lateinit var user: String
+
     private val filter = IntentFilter().apply {
         addAction("RANDOMIZE_TRANSACTION")
         addAction("EXPIRED_TOKEN")
@@ -88,11 +90,17 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
 
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_transactions
+                R.id.navigation_transactions,
+                R.id.navigation_graph
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.navigation_form_transaction) navView.visibility = View.GONE
+            else navView.visibility = View.VISIBLE
+        }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(br, filter)
 
@@ -102,7 +110,6 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
         connectivityObserver.observe().onEach {
             networkState = it
-            Log.v("abecekut", "Status is $it")
             if (it == ConnectivityObserver.NetworkState.UNAVAILABLE || it == ConnectivityObserver.NetworkState.LOST) {
                 runOnUiThread {
                     val builder: AlertDialog.Builder = AlertDialog.Builder(this@MainActivity)
@@ -118,6 +125,12 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
                 }
             }
         }.launchIn(lifecycleScope)
+
+        val sharedPref = getSharedPreferences(
+            getString(R.string.preference_file_key),
+            Context.MODE_PRIVATE
+        )
+        user = sharedPref.getString("user", "").toString()
     }
 
     override fun onIntentReceived(action: String, info: String?) {
@@ -179,7 +192,7 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
             val exportLoadDialog = ExportLoadDialogFragment()
 
             exportLoadDialog.show(supportFragmentManager, "LOAD_DIALOG")
-            val intent = viewModel.createEmailIntent(applicationContext)
+            val intent = viewModel.createEmailIntent(applicationContext, user)
             exportLoadDialog.dismiss()
 
             if (intent.resolveActivity(packageManager) != null) {
@@ -195,7 +208,7 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
                 data?.data?.also { uri ->
                     lifecycleScope.launch {
                         viewModel.exportTransactionsToExcel(
-                            applicationContext.contentResolver, uri
+                            applicationContext.contentResolver, uri, user
                         )
                     }
                 }
