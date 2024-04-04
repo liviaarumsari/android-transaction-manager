@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment

@@ -22,7 +22,7 @@ class ScannerViewModel(private val transactionRepository: TransactionRepository)
             timestamp = Date(),
             latitude = lat,
             longitude = long,
-            location = "Unknown",
+            location = "location",
             )
         transactionRepository.insert(transaction)
         }

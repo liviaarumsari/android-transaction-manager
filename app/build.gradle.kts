@@ -61,6 +61,8 @@ dependencies {
     annotationProcessor(libs.glideCompiler)
     implementation(libs.androidx.activity)
     implementation(libs.play.services.location)
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
     annotationProcessor(libs.androidx.room.compiler)
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.legacy.support.v4)
