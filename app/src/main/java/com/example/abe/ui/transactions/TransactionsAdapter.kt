@@ -60,6 +60,10 @@ class TransactionsAdapter(private val itemClickListener: TransactionFragment.Ite
                 flImageContainer.setBackgroundColor(context.getColor(R.color.secondary))
                 ivTrxIcon.setImageResource(R.drawable.ic_circle_arrow_down)
                 tvAmount.setTextColor(context.getColor(R.color.success))
+            } else {
+                flImageContainer.setBackgroundColor(context.getColor(R.color.primary))
+                ivTrxIcon.setImageResource(R.drawable.ic_circle_arrow_up)
+                tvAmount.setTextColor(context.getColor(R.color.destructive))
             }
 
             tvTrxTitle.text = trx.title
