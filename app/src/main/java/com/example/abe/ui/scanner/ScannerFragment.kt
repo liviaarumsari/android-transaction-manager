@@ -13,7 +13,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
-import android.util.Size
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,19 +22,16 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.abe.R
 import androidx.camera.core.*
-import androidx.camera.core.resolutionselector.ResolutionSelector
-import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.example.abe.ABEApplication
 import com.example.abe.data.network.Retrofit
 import com.example.abe.data.network.ItemsRoot
-import com.example.abe.data.network.TransactionItem
 import com.example.abe.data.network.UploadResultCallback
 import com.example.abe.databinding.FragmentScanBinding
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -63,10 +59,17 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         ScannerViewModelFactory((activity?.application as ABEApplication).repository)
     }
 
+    private var isCameraPermissionDenied = false
+    private var isRequestingPermission = false
+
     private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            if (permissions.all { it.value }) {
-                startCamera()
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            isRequestingPermission = false
+            if (isGranted) {
+                startCameraOrHandlePermission()
+            } else {
+                isCameraPermissionDenied = true
+                Log.d(TAG, "Camera permission denied")
             }
         }
 
@@ -92,7 +95,6 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         }
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -101,7 +103,7 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         cameraView = binding.camera
         cameraExecutor = Executors.newSingleThreadExecutor()
 
-        requestPermissions()
+        requestCameraPermission()
 
         val sharedPref = activity?.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         user = sharedPref?.getString("user", "").toString()
@@ -117,22 +119,29 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         return binding.root
     }
 
-    companion object {
-        private const val REQUEST_CODE_PERMISSIONS = 10
-        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
-        private const val TAG = "ScannerFragment"
-        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (allPermissionsGranted()) {
-            startCamera()
-            getLastLocation()
+
+        // Request camera permission if needed
+        if (!cameraPermissionGranted() && !isRequestingPermission) {
+            requestCameraPermission()
         } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(), REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
+            startCameraOrHandlePermission()
         }
+    }
+
+    private fun startCameraOrHandlePermission() {
+        if (cameraPermissionGranted()) {
+            startCamera()
+        } else if (isCameraPermissionDenied) {
+            Toast.makeText(requireContext(), "Camera permission denied, unable to use scanner", Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "Camera permission denied, unable to use scanner")
+        }
+    }
+
+    companion object {
+        private const val TAG = "ABE-PHO"
+        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
     }
 
     private fun startCamera() {
@@ -169,7 +178,7 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     private fun attemptUpload(imageFile: File) {
         val retrofit = Retrofit()
         val context = requireContext()
-        Log.d("ABE-PHO", "size: ${imageFile.length()/1024}")
+        Log.d(TAG, "size: ${imageFile.length()/1024}")
         retrofit.upload(context, imageFile, this)
     }
 
@@ -231,7 +240,6 @@ class ScannerFragment : Fragment(), UploadResultCallback {
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    // Proceed with further operations
                     val savedUri = Uri.fromFile(photoFile)
                     showPreviewDialog(savedUri)
                 }
@@ -249,39 +257,71 @@ class ScannerFragment : Fragment(), UploadResultCallback {
                         latitude = location.latitude
                         longitude = location.longitude
                         Log.d(TAG, "Latitude: $latitude, Longitude: $longitude")
-                        // Now you have latitude and longitude, pass them to insertTransaction
                     }
                 }
                 .addOnFailureListener { e ->
                     Log.e(TAG, "Failed to get location: ${e.message}", e)
                 }
         } else {
-            // Handle the case where location permission is not granted
             Log.e(TAG, "Location permission not granted")
-            // You may want to request the permission again or handle it in some other way
         }
     }
 
     override fun onSuccess(uploadResponse: ItemsRoot) {
-        Log.e("ABE-PHO", "Upload success")
+        Log.e(TAG, "Upload success")
 
         uploadResponse.items.items.forEach {item ->
+            requestPermissionLauncher.launch(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            )
+
+            requestPermissionLauncher.launch(
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+
             val geocoder = Geocoder(requireContext(), Locale.getDefault())
             val addresses = geocoder.getFromLocation(latitude, longitude, 1)
-            val locationName = if (addresses?.isNotEmpty() == true) {
-                val address = addresses[0]
-                address.getAddressLine(0) // This will give you the full address
+            var locationName = ""
+
+            if (
+                !(ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+            ) {
+                latitude = -6.892382
+                longitude = 107.608352
+                locationName = if (addresses?.isNotEmpty() == true) {
+                    val address = addresses[0]
+                    address.getAddressLine(0)
+                } else {
+                    "Unknown location"
+                }
             } else {
-                "Unknown location"
+                getLastLocation()
+                locationName = if (addresses?.isNotEmpty() == true) {
+                    val address = addresses[0]
+                    address.getAddressLine(0)
+                } else {
+                    "Unknown location"
+                }
             }
 
             viewModel.insertTransaction(user, item, latitude, longitude, locationName)
+
+            val msg = "New transactions added!"
+            Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+            Log.d(TAG, msg)
+
+            findNavController().navigate(R.id.action_navigation_scanner_to_navigation_transactions)
+            Log.d(TAG, "Navigate to transaction list")
         }
     }
 
 
     override fun onFailure(errorMessage: String) {
-        Log.e("ABE-PHO", errorMessage)
+        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+        Log.e(TAG, errorMessage)
     }
 
     private fun openGallery() {
@@ -290,11 +330,22 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         openGalleryLauncher.launch(intent)
     }
 
-    private fun allPermissionsGranted() = ContextCompat.checkSelfPermission(
+    private fun cameraPermissionGranted() = ContextCompat.checkSelfPermission(
         requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
 
-    private fun requestPermissions() {
-        requestPermissionLauncher.launch(arrayOf(Manifest.permission.CAMERA))
+    private fun requestCameraPermission() {
+        isRequestingPermission = true
+        requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (!cameraPermissionGranted()) {
+            requestCameraPermission()
+        } else {
+            startCamera()
+        }
     }
 
     override fun onDestroyView() {

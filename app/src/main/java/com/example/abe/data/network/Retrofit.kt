@@ -126,13 +126,13 @@ class Retrofit {
                         callback.onSuccess(it)
                     }
                 } else {
-                    callback.onFailure("Scan failed")
+                    callback.onFailure("Upload failed")
                 }
             }
 
             override fun onFailure(call: Call<ItemsRoot>, t: Throwable) {
                 Log.d("ABE-PHO", "Failed to send request: " + t.message)
-                callback.onFailure("Failed to send request")
+                callback.onFailure("Failed to send photo")
             }
         })
     }

@@ -30,7 +30,15 @@
         android:id="@+id/navigation_scan"
         android:name="com.example.abe.ui.scanner.ScannerFragment"
         android:label="Scan"
-        tools:layout="@layout/fragment_scan" />
+        tools:layout="@layout/fragment_scan">
+
+        <action
+            android:id="@+id/action_navigation_scanner_to_navigation_transactions"
+            app:destination="@+id/navigation_transactions"
+            app:popUpTo="@id/navigation_transactions"
+            app:popUpToInclusive="true"
+            />
+    </fragment>
 
 <!--    <fragment-->
 <!--        android:id="@+id/navigation_graph"-->
