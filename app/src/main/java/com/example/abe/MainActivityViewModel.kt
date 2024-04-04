@@ -19,7 +19,7 @@ class MainActivityViewModel(private val transactionRepository: TransactionReposi
     var newExcelFormat: Boolean = false
 
     fun getExportFileName(): String {
-        val date = SimpleDateFormat("yyyy-MM-dd_hh:mm:ss" , Locale.ENGLISH).format(Date())
+        val date = SimpleDateFormat("yyyy-MM-dd_hh-mm-ss" , Locale.ENGLISH).format(Date())
         return "Daftar-Transaksi_$date"
     }
 
