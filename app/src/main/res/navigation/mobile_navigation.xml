@@ -21,7 +21,7 @@
 
     <fragment
         android:id="@+id/navigation_form_transaction"
-        android:label="Add Transaction"
+        android:label="Form Transaction"
         android:name="com.example.abe.ui.form_transaction.FormTransaction"
         tools:layout="@layout/fragment_form_transaction"
         />
