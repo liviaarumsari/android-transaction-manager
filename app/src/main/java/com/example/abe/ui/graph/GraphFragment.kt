@@ -19,6 +19,7 @@ import com.github.mikephil.charting.data.PieEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.floor
 
 
 class GraphFragment : Fragment() {
@@ -51,7 +52,7 @@ class GraphFragment : Fragment() {
         withContext(Dispatchers.Main) {
             val total = expenses + income
 
-            val expensePercentage = Math.floor(expenses * 100 / total).toInt()
+            val expensePercentage = floor(expenses * 100 / total).toInt()
             val incomePercentage = 100 - expensePercentage
 
             val expensePtgStr = "${expensePercentage}%"
@@ -64,44 +65,56 @@ class GraphFragment : Fragment() {
             binding.tvExpenseAmount.text = currencyFormatter(expenses.toInt())
             binding.tvIncomeAmount.text = currencyFormatter(income.toInt())
 
-            val entries = ArrayList<PieEntry>().apply {
-                add(PieEntry(expenses.toFloat(), "Expenses"))
-                add(PieEntry(income.toFloat(), "Income"))
-            }
+            if (total != 0.0) {
+                binding.tvNoTransactions.visibility = View.GONE
+                binding.chartPie.visibility = View.VISIBLE
 
-            val entryColors = ArrayList<Int>().apply {
-                add(requireContext().getColor(R.color.primary))
-                add(requireContext().getColor(R.color.secondary))
-            }
+                val entries = ArrayList<PieEntry>().apply {
+                    if (expenses != 0.0)
+                        add(PieEntry(expenses.toFloat(), "Expenses"))
+                    if (income != 0.0)
+                        add(PieEntry(income.toFloat(), "Income"))
+                }
+
+                val entryColors = ArrayList<Int>().apply {
+                    if (expenses != 0.0)
+                        add(requireContext().getColor(R.color.primary))
+                    if (income != 0.0)
+                        add(requireContext().getColor(R.color.secondary))
+                }
 
 
-            val dataSet = PieDataSet(entries, "Income & Expenses").apply {
-                colors = entryColors
-                setDrawValues(false)
-                xValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE
-                valueLinePart1OffsetPercentage = 100f
-                valueLinePart1Length = 0.8f
-                valueLinePart2Length = 0f
-            }
+                val dataSet = PieDataSet(entries, "Income & Expenses").apply {
+                    colors = entryColors
+                    setDrawValues(false)
+                    xValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE
+                    valueLinePart1OffsetPercentage = 100f
+                    valueLinePart1Length = 0.8f
+                    valueLinePart2Length = 0f
+                }
 
-            val data = PieData(dataSet)
+                val data = PieData(dataSet)
 
-            binding.chartPie.apply {
-                isDrawHoleEnabled = false
-                dragDecelerationFrictionCoef = 0.95f
-                rotationAngle = 0f
-                isRotationEnabled = false
-                isHighlightPerTapEnabled = true
-                legend.isEnabled = false
-                description.isEnabled = false
-                setExtraOffsets(20f, 10f, 20f, 10f)
+                binding.chartPie.apply {
+                    isDrawHoleEnabled = false
+                    dragDecelerationFrictionCoef = 0.95f
+                    rotationAngle = 0f
+                    isRotationEnabled = false
+                    isHighlightPerTapEnabled = true
+                    legend.isEnabled = false
+                    description.isEnabled = false
+                    setExtraOffsets(20f, 15f, 20f, 15f)
 
-                setEntryLabelTextSize(14f)
-                setEntryLabelColor(Color.BLACK)
+                    setEntryLabelTextSize(14f)
+                    setEntryLabelColor(Color.BLACK)
 
-                setData(data)
-                highlightValues(null)
-                invalidate()
+                    setData(data)
+                    highlightValues(null)
+                    invalidate()
+                }
+            } else {
+                binding.tvNoTransactions.visibility = View.VISIBLE
+                binding.chartPie.visibility = View.GONE
             }
         }
     }
