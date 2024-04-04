@@ -75,7 +75,6 @@ class Retrofit {
 
         call.enqueue(object : Callback<LoginResponse> {
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
-                Log.d("ABE-PHO", "response: " + Gson().toJson(response.body()))
                 if (response.isSuccessful) {
                     response.body()?.let {
                         callback.onSuccess(it)
@@ -95,7 +94,6 @@ class Retrofit {
         val scannerService = retrofit.create(ScannerService::class.java)
         val sharedPreferences = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         val authHeader = "Bearer " + sharedPreferences.getString("login_token", "")
-        Log.d("ABE-PHO", "header: $authHeader")
 
         // Determine the MIME type of the file
         val mimeType = URLConnection.guessContentTypeFromName(file.name)
@@ -108,7 +106,6 @@ class Retrofit {
         val requestFile = file
             .asRequestBody(mimeType.toMediaTypeOrNull())
 
-        Log.d("ABE-PHO", "size: ${file.length() / 1024}")
 
         // MultipartBody.Part is used to send also the actual file name
         val body = MultipartBody.Part.createFormData("file", file.name, requestFile)

@@ -330,9 +330,6 @@ class ScannerFragment : Fragment(), UploadResultCallback {
 
     fun insertItems() {
         val geocoder = Geocoder(requireContext(), Locale.getDefault())
-        Log.d("ABE-PHO", "default: $useDefaultLocation")
-        Log.d("ABE-PHO", "latitude: $latitude")
-        Log.d("ABE-PHO", "longitude: $longitude")
         val locationList: MutableList<Address> =
             geocoder.getFromLocation(latitude, longitude, 1) ?: mutableListOf<Address>()
         val location =
