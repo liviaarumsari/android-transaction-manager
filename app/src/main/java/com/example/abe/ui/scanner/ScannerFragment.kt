@@ -70,13 +70,28 @@ class ScannerFragment : Fragment(), UploadResultCallback {
             }
         }
 
+    private fun uriToFile(imageUri: Uri): File {
+        val context = requireContext()
+        val inputStream = context.contentResolver.openInputStream(imageUri)
+        val tempFile = File.createTempFile("upload", ".jpg", context.cacheDir).apply {
+            outputStream().use { fileOut ->
+                inputStream?.copyTo(fileOut)
+            }
+        }
+        inputStream?.close()
+        return tempFile
+    }
+
     private val openGalleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val imageUri = result.data?.data
-            val imageFile = File(imageUri?.path.toString())
-            attemptUpload(imageFile)
+            if (imageUri != null) {
+                val imageFile = uriToFile(imageUri)
+                attemptUpload(imageFile)
+            }
         }
     }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
