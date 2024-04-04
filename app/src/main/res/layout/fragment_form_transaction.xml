@@ -29,6 +29,7 @@
                 android:id="@+id/formTitleEditText"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:maxLength="255"
                 android:hint="@string/title"
                 android:text="@={viewModel.title}"
                 android:inputType="text"
@@ -52,6 +53,7 @@
                 android:id="@+id/formAmountEditText"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:maxLength="10"
                 android:hint="@string/amount"
                 android:text="@={viewModel.amount}"
                 android:inputType="number"
@@ -114,11 +116,12 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/formLocationEditText"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:hint="@string/location"
                 android:inputType="none"
-                android:lines="2"
-                android:text="@={viewModel.location}" />
+                android:text="@={viewModel.location}"
+                android:focusable="false"
+                android:focusableInTouchMode="false"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 

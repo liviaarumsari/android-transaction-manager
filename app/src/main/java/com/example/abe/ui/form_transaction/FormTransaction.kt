@@ -30,6 +30,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.abe.ABEApplication
 import com.example.abe.R
 import com.example.abe.databinding.FragmentFormTransactionBinding
+import com.example.abe.utils.isNumericValid
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.textfield.TextInputLayout
@@ -51,7 +52,6 @@ class FormTransaction : Fragment() {
     private lateinit var user: String
 
     private var id: Int? = null
-    private var location: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -147,7 +147,11 @@ class FormTransaction : Fragment() {
 
     private fun amountFocusListener() {
         binding.formAmountEditText.setOnFocusChangeListener { _, focused ->
-            if (!focused) setHelperText(binding.formAmountContainer, binding.formAmountEditText)
+            if (!focused) setHelperText(
+                binding.formAmountContainer,
+                binding.formAmountEditText,
+                true
+            )
         }
     }
 
@@ -175,24 +179,30 @@ class FormTransaction : Fragment() {
         }
     }
 
-    private fun setHelperText(container: TextInputLayout, editText: EditText) {
-        container.helperText =
-            if (editText.text.toString().isEmpty()) "This field is required" else null
+    private fun setHelperText(
+        container: TextInputLayout,
+        editText: EditText,
+        isNumeric: Boolean = false
+    ) {
+        if (editText.text.toString().isEmpty()) {
+            container.helperText = "This field is required"
+        } else if (isNumeric && !isNumericValid(editText.text.toString())) {
+            container.helperText = "This field must be number"
+        } else {
+            container.helperText = null
+        }
     }
 
     private fun saveButtonListener() {
         binding.btnSave.setOnClickListener {
             setHelperText(binding.formTitleContainer, binding.formTitleEditText)
-            setHelperText(binding.formAmountContainer, binding.formAmountEditText)
+            setHelperText(binding.formAmountContainer, binding.formAmountEditText, true)
             setHelperText(binding.formCategoryContainer, binding.categoryAutocomplete)
-
-            if (binding.formLocationEditText.text.toString().isEmpty()) {
-                binding.formLocationEditText.setText(location)
-            }
 
             if (binding.formTitleEditText.text.toString()
                     .isNotEmpty() && binding.formAmountEditText.text.toString()
-                    .isNotEmpty() && binding.categoryAutocomplete.text.toString().isNotEmpty()
+                    .isNotEmpty() && binding.categoryAutocomplete.text.toString()
+                    .isNotEmpty() && isNumericValid(binding.formAmountEditText.text.toString())
             ) {
                 if (id != null) {
                     viewModel.updateTransaction(id!!)
@@ -280,11 +290,7 @@ class FormTransaction : Fragment() {
         viewModel.latitude.value = latitude
         viewModel.longitude.value = longitude
         if (list != null) {
-            // TODO: check why this sometimes doesn't update the ui
             viewModel.location.value = (list[0].getAddressLine(0))
-            location = (list[0].getAddressLine(0))
-//            Toast.makeText(requireActivity(), viewModel.location.value, Toast.LENGTH_SHORT)
-//                .show()
         }
     }
 

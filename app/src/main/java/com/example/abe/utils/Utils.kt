@@ -8,7 +8,7 @@ fun isConnected(networkState: ConnectivityObserver.NetworkState?): Boolean {
     return (networkState != null && (networkState == ConnectivityObserver.NetworkState.AVAILABLE || networkState == ConnectivityObserver.NetworkState.LOSING))
 }
 
-fun isNumeric(input: String): Boolean {
+fun isNumericValid(input: String): Boolean {
     return input.matches("\\d+".toRegex())
 }
 
