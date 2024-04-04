@@ -5,9 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import com.example.abe.MainActivity
 import com.example.abe.R
@@ -17,7 +17,6 @@ import com.example.abe.data.network.LoginResultCallback
 import com.example.abe.data.network.Retrofit
 import com.example.abe.databinding.ActivityLoginBinding
 import com.example.abe.utils.isConnected
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -29,14 +28,17 @@ class LoginActivity : AppCompatActivity(), LoginResultCallback {
 
     private fun attemptLogin(email: String, password: String) {
         val retrofit = Retrofit()
-        retrofit.login(email, password, this)
+        if (email != "" && password != "") {
+            retrofit.login(email, password, this)
+        } else {
+            Toast.makeText(applicationContext, "Please fill in your email and password", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private lateinit var connectivityObserver: ConnectivityObserver
     private var networkState: ConnectivityObserver.NetworkState? = null
 
     override fun onSuccess(loginResponse: com.example.abe.data.network.LoginResponse) {
-        // Handle successful login
         println("Login successful: $loginResponse")
 
         val sharedPref =
@@ -53,8 +55,7 @@ class LoginActivity : AppCompatActivity(), LoginResultCallback {
     }
 
     override fun onFailure(errorMessage: String) {
-        // Handle login failure
-        println(errorMessage)
+        Toast.makeText(applicationContext, errorMessage, Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
