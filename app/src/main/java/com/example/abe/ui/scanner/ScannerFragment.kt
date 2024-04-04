@@ -15,6 +15,7 @@ import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -69,7 +70,6 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         ScannerViewModelFactory((activity?.application as ABEApplication).repository)
     }
 
-    private var isCameraPermissionDenied = false
     private var isRequestingPermission = false
 
     private var uploadResponse: ItemsRoot? = null
@@ -78,9 +78,13 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             isRequestingPermission = false
             if (isGranted) {
-                startCameraOrHandlePermission()
+                startCamera()
             } else {
-                isCameraPermissionDenied = true
+                Toast.makeText(
+                    requireContext(),
+                    "Please allow access to camera to use scanner",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
 
@@ -115,7 +119,12 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         cameraView = binding.camera
         cameraExecutor = Executors.newSingleThreadExecutor()
 
-        requestCameraPermission()
+        if (!cameraPermissionGranted()) {
+            Log.d("ABE-PHO", "premissions not granter")
+            requestCameraPermission()
+        } else {
+            startCamera()
+        }
 
         val sharedPref = activity?.getSharedPreferences(
             getString(R.string.preference_file_key),
@@ -132,29 +141,6 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         }
 
         return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        // Request camera permission if needed
-        if (!cameraPermissionGranted() && !isRequestingPermission) {
-            requestCameraPermission()
-        } else {
-            startCameraOrHandlePermission()
-        }
-    }
-
-    private fun startCameraOrHandlePermission() {
-        if (cameraPermissionGranted()) {
-            startCamera()
-        } else if (isCameraPermissionDenied) {
-            Toast.makeText(
-                requireContext(),
-                "Camera permission denied, unable to use scanner",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
     }
 
     companion object {
@@ -371,16 +357,6 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     private fun requestCameraPermission() {
         isRequestingPermission = true
         requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        if (!cameraPermissionGranted()) {
-            requestCameraPermission()
-        } else {
-            startCamera()
-        }
     }
 
     override fun onDestroyView() {
