@@ -12,7 +12,7 @@ import java.util.Date
 
 class ScannerViewModel(private val transactionRepository: TransactionRepository):
     ViewModel() {
-    fun insertTransaction(user: String, item: TransactionItem, lat: Double, long: Double) = viewModelScope.launch(Dispatchers.IO) {
+    fun insertTransaction(user: String, item: TransactionItem, lat: Double, long: Double, location: String) = viewModelScope.launch(Dispatchers.IO) {
         val transaction = Transaction(
             id = 0,
             email = user,
@@ -22,11 +22,12 @@ class ScannerViewModel(private val transactionRepository: TransactionRepository)
             timestamp = Date(),
             latitude = lat,
             longitude = long,
-            location = "location",
-            )
+            location = location,
+        )
         transactionRepository.insert(transaction)
-        }
+    }
 }
+
 
 class ScannerViewModelFactory(private val repository: TransactionRepository) :
     ViewModelProvider.Factory {

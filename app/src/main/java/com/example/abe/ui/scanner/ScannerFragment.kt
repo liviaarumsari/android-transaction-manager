@@ -251,9 +251,19 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         Log.e("ABE-PHO", "Upload success")
 
         uploadResponse.items.items.forEach {item ->
-            viewModel.insertTransaction(user, item, latitude, longitude)
+            val geocoder = Geocoder(requireContext(), Locale.getDefault())
+            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+            val locationName = if (addresses?.isNotEmpty() == true) {
+                val address = addresses[0]
+                address.getAddressLine(0) // This will give you the full address
+            } else {
+                "Unknown location"
+            }
+
+            viewModel.insertTransaction(user, item, latitude, longitude, locationName)
         }
     }
+
 
     override fun onFailure(errorMessage: String) {
         Log.e("ABE-PHO", errorMessage)
