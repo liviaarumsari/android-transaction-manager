@@ -7,8 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
     }
 
     private lateinit var connectivityObserver: ConnectivityObserver
-    private lateinit var networkState:ConnectivityObserver.NetworkState
+    private lateinit var networkState: ConnectivityObserver.NetworkState
 
     private lateinit var user: String
 
@@ -63,6 +63,9 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
                     val bundle = Bundle().apply {
                         putInt("random_amount", randomAmount)
                     }
+                    navController.navigate(
+                        R.id.action_navigation_settings_to_navigation_transactions
+                    )
                     navController.navigate(
                         R.id.action_navigation_transactions_to_navigation_form_transaction,
                         bundle
@@ -91,6 +94,7 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.navigation_transactions,
+                R.id.navigation_settings,
                 R.id.navigation_graph
             )
         )
@@ -105,7 +109,7 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         LocalBroadcastManager.getInstance(this).registerReceiver(br, filter)
 
         val serviceIntent = Intent(this, AuthService::class.java)
-        startService(serviceIntent);
+        startService(serviceIntent)
 
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
         connectivityObserver.observe().onEach {
@@ -210,6 +214,11 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
                         viewModel.exportTransactionsToExcel(
                             applicationContext.contentResolver, uri, user
                         )
+                        Toast.makeText(
+                            applicationContext,
+                            "Successfully saved transaction to storage",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
             }
@@ -219,7 +228,7 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         super.onDestroy()
         LocalBroadcastManager.getInstance(this).registerReceiver(br, filter)
         val serviceIntent = Intent(this, AuthService::class.java)
-        stopService(serviceIntent);
+        stopService(serviceIntent)
     }
 
     override fun onSupportNavigateUp(): Boolean {

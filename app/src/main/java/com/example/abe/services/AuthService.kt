@@ -22,7 +22,6 @@ class AuthService : Service(), CheckAuthResultCallback {
         isRunning = true
         Thread {
             while (isRunning) {
-                Log.d("ABE-SRV", "Service still running")
                 val retrofit = Retrofit()
                 val sharedPref = getSharedPreferences(
                     getString(R.string.preference_file_key),
@@ -31,7 +30,7 @@ class AuthService : Service(), CheckAuthResultCallback {
                 val token = sharedPref.getString("login_token", "").toString()
                 retrofit.checkAuth(token, this)
                 try {
-                    Thread.sleep(10000)
+                    Thread.sleep(30000)
                 } catch (e: InterruptedException) {
                     e.printStackTrace()
                 }
