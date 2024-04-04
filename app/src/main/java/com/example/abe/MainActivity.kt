@@ -49,6 +49,8 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
     private lateinit var connectivityObserver: ConnectivityObserver
     private lateinit var networkState:ConnectivityObserver.NetworkState
 
+    private lateinit var user: String
+
     private val filter = IntentFilter().apply {
         addAction("RANDOMIZE_TRANSACTION")
         addAction("EXPIRED_TOKEN")
@@ -88,7 +90,8 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
 
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_transactions
+                R.id.navigation_transactions,
+                R.id.navigation_graph
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -122,6 +125,12 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
                 }
             }
         }.launchIn(lifecycleScope)
+
+        val sharedPref = getSharedPreferences(
+            getString(R.string.preference_file_key),
+            Context.MODE_PRIVATE
+        )
+        user = sharedPref.getString("user", "").toString()
     }
 
     override fun onIntentReceived(action: String, info: String?) {
@@ -183,7 +192,7 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
             val exportLoadDialog = ExportLoadDialogFragment()
 
             exportLoadDialog.show(supportFragmentManager, "LOAD_DIALOG")
-            val intent = viewModel.createEmailIntent(applicationContext)
+            val intent = viewModel.createEmailIntent(applicationContext, user)
             exportLoadDialog.dismiss()
 
             if (intent.resolveActivity(packageManager) != null) {
@@ -199,7 +208,7 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
                 data?.data?.also { uri ->
                     lifecycleScope.launch {
                         viewModel.exportTransactionsToExcel(
-                            applicationContext.contentResolver, uri
+                            applicationContext.contentResolver, uri, user
                         )
                     }
                 }
