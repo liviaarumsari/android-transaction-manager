@@ -31,7 +31,7 @@ class AuthService : Service(), CheckAuthResultCallback {
                 val token = sharedPref.getString("login_token", "").toString()
                 retrofit.checkAuth(token, this)
                 try {
-                    Thread.sleep(10000)
+                    Thread.sleep(30000)
                 } catch (e: InterruptedException) {
                     e.printStackTrace()
                 }
