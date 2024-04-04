@@ -26,11 +26,11 @@
         tools:layout="@layout/fragment_form_transaction"
         />
 
-    <fragment
-        android:id="@+id/navigation_scan"
-        android:name="com.example.abe.ui.scanner.ScannerFragment"
-        android:label="Scan"
-        tools:layout="@layout/fragment_scan" />
+<!--    <fragment-->
+<!--        android:id="@+id/navigation_scan"-->
+<!--        android:name="com.example.abe.ui.scanner.ScannerFragment"-->
+<!--        android:label="Scan"-->
+<!--        tools:layout="@layout/fragment_scan" />-->
 
     <fragment
         android:id="@+id/navigation_graph"
