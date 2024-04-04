@@ -80,12 +80,12 @@ class Retrofit {
                         callback.onSuccess(it)
                     }
                 } else {
-                    callback.onFailure("Login failed")
+                    callback.onFailure("Login failed, incorrect email or password")
                 }
             }
 
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                callback.onFailure("Failed to send request")
+                callback.onFailure("Failed to send login request")
             }
         })
     }
