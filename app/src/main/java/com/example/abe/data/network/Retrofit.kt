@@ -1,18 +1,19 @@
 package com.example.abe.data.network
 
 import android.content.Context
+import android.util.Log
+import com.example.abe.R
+import com.google.gson.Gson
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import android.preference.PreferenceManager
-import com.example.abe.R
-import com.example.abe.services.AuthService
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
+
 
 interface LoginResultCallback {
     fun onSuccess(loginResponse: LoginResponse)
@@ -64,6 +65,7 @@ class Retrofit {
 
         call.enqueue(object : Callback<LoginResponse> {
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                Log.d("ABE-PHO", "response: " + Gson().toJson(response.body()))
                 if (response.isSuccessful) {
                     response.body()?.let {
                         callback.onSuccess(it)
@@ -81,8 +83,9 @@ class Retrofit {
 
     fun upload(context: Context, file: File, callback: UploadResultCallback) {
         val scannerService = retrofit.create(ScannerService::class.java)
-        val sharedPreferences = context.getSharedPreferences("YourPreferenceName", Context.MODE_PRIVATE)
+        val sharedPreferences = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
         val authHeader = "Bearer " + sharedPreferences.getString("login_token", "")
+        Log.d("ABE-PHO", "header: $authHeader")
 
         // create RequestBody instance from file
         val requestFile = RequestBody.create(
@@ -97,6 +100,10 @@ class Retrofit {
 
         call.enqueue(object: Callback<ItemsRoot> {
             override fun onResponse(call: Call<ItemsRoot>, response: Response<ItemsRoot>) {
+                Log.d("ABE-PHO", "response: " + Gson().toJson(response.body()))
+                Log.d("ABE-PHO", "error: " + Gson().toJson(response.errorBody()))
+                Log.d("ABE-PHO", "code: " + response.code())
+
                 if (response.isSuccessful) {
                     response.body()?.let {
                         callback.onSuccess(it)

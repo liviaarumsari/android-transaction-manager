@@ -12,6 +12,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.util.Size
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,6 +28,8 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.abe.R
 import androidx.camera.core.*
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.fragment.app.viewModels
 import com.example.abe.ABEApplication
 import com.example.abe.data.network.Retrofit
@@ -98,6 +101,24 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         return binding.root
     }
 
+    companion object {
+        private const val REQUEST_CODE_PERMISSIONS = 10
+        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+        private const val TAG = "ScannerFragment"
+        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (allPermissionsGranted()) {
+            startCamera()
+            getLastLocation()
+        } else {
+            ActivityCompat.requestPermissions(
+                requireActivity(), REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
+        }
+    }
+
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
 
@@ -132,6 +153,7 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     private fun attemptUpload(imageFile: File) {
         val retrofit = Retrofit()
         val context = requireContext()
+        Log.d("ABE-PHO", "size: ${imageFile.length()/1024}")
         retrofit.upload(context, imageFile, this)
     }
 
@@ -225,13 +247,15 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     }
 
     override fun onSuccess(uploadResponse: ItemsRoot) {
+        Log.e("ABE-PHO", "Upload success")
+
         uploadResponse.items.items.forEach {item ->
             viewModel.insertTransaction(user, item, latitude, longitude)
         }
     }
 
     override fun onFailure(errorMessage: String) {
-        println("Scan Error! $errorMessage")
+        Log.e("ABE-PHO", errorMessage)
     }
 
     private fun openGallery() {
@@ -251,23 +275,5 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         super.onDestroyView()
         cameraExecutor.shutdown()
         _binding = null
-    }
-
-    companion object {
-        private const val REQUEST_CODE_PERMISSIONS = 10
-        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
-        private const val TAG = "ScannerFragment"
-        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        if (allPermissionsGranted()) {
-            startCamera()
-            getLastLocation()
-        } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(), REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
-        }
     }
 }
