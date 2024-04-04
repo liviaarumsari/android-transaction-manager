@@ -260,19 +260,20 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     }
 
     @SuppressLint("MissingPermission")
-    private fun getCurrentLocation() {
+    private fun getCurrentLocationAndInsertTrx() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         if (checkLocationPermissions() && checkIfLocationEnabled()) {
             fusedLocationClient.lastLocation
-                .addOnSuccessListener { location: android.location.Location? ->
-                    location?.let {
+                .addOnCompleteListener(requireActivity()) { task ->
+                    val location = task.result
+                    if (location != null) {
                         latitude = location.latitude
                         longitude = location.longitude
+                    } else {
+                        setLocationAsDefault()
                     }
-                }
-                .addOnFailureListener {
-                    setLocationAsDefault()
+                    insertItems()
                 }
         } else {
             setLocationAsDefault()
@@ -310,26 +311,28 @@ class ScannerFragment : Fragment(), UploadResultCallback {
                 if (it.value) granted = true
             }
             if (granted) {
-                getCurrentLocation()
+                getCurrentLocationAndInsertTrx()
             } else {
                 setLocationAsDefault()
+                insertItems()
             }
-            intsertItems()
         }
 
     override fun onSuccess(uploadResponse: ItemsRoot) {
         this.uploadResponse = uploadResponse
 
         if (checkLocationPermissions()) {
-            getCurrentLocation()
-            intsertItems()
+            getCurrentLocationAndInsertTrx()
         } else {
             askForLocationPermissions()
         }
     }
 
-    fun intsertItems() {
+    fun insertItems() {
         val geocoder = Geocoder(requireContext(), Locale.getDefault())
+        Log.d("ABE-PHO", "default: $useDefaultLocation")
+        Log.d("ABE-PHO", "latitude: $latitude")
+        Log.d("ABE-PHO", "longitude: $longitude")
         val locationList: MutableList<Address> =
             geocoder.getFromLocation(latitude, longitude, 1) ?: mutableListOf<Address>()
         val location =
