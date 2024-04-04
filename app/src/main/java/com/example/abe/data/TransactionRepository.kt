@@ -5,7 +5,12 @@ import androidx.lifecycle.LiveData
 
 class TransactionRepository(private val transactionDAO: TransactionDAO) {
 
-    fun getAll(email: String): LiveData<List<Transaction>> {
+    fun getAllObservable(email: String): LiveData<List<Transaction>> {
+        return transactionDAO.getAllObservable(email)
+    }
+
+    @WorkerThread
+    suspend fun getAll(email: String): List<Transaction> {
         return transactionDAO.getAll(email)
     }
 

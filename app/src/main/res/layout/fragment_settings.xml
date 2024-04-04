@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="16dp"
+    tools:context=".ui.settings.SettingsFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clSave"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@drawable/bg_graph_detail_item"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed">
+
+        <ImageView
+            android:id="@+id/Save"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_marginStart="24dp"
+            android:src="@drawable/ic_save"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:text="Save transaction"
+            app:layout_constraintBottom_toBottomOf="@+id/Save"
+            app:layout_constraintStart_toEndOf="@+id/Save"
+            app:layout_constraintTop_toTopOf="@+id/Save" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clSend"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@drawable/bg_graph_detail_item"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/clSave"
+        app:layout_constraintTop_toBottomOf="@+id/clSave">
+
+        <ImageView
+            android:id="@+id/Send"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_marginStart="24dp"
+            android:src="@drawable/ic_send"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textSend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Send transaction"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            app:layout_constraintBottom_toBottomOf="@+id/Send"
+            app:layout_constraintStart_toEndOf="@+id/Send"
+            app:layout_constraintTop_toTopOf="@+id/Send" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clRandomize"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@drawable/bg_graph_detail_item"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/clSend"
+        app:layout_constraintTop_toBottomOf="@+id/clSend">
+
+        <ImageView
+            android:id="@+id/Randomize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:src="@drawable/ic_dices"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textRandomize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Randomize transaction"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            app:layout_constraintBottom_toBottomOf="@+id/Randomize"
+            app:layout_constraintStart_toEndOf="@+id/Randomize"
+            app:layout_constraintTop_toTopOf="@+id/Randomize" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clLogout"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@drawable/bg_graph_detail_item"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/clRandomize"
+        app:layout_constraintTop_toBottomOf="@+id/clRandomize">
+
+        <ImageView
+            android:id="@+id/Logout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:src="@drawable/ic_log_out"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textLogout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Logout"
+            android:textStyle="bold"
+            android:textColor="@color/destructive"
+            app:layout_constraintBottom_toBottomOf="@+id/Logout"
+            app:layout_constraintStart_toEndOf="@+id/Logout"
+            app:layout_constraintTop_toTopOf="@+id/Logout" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
