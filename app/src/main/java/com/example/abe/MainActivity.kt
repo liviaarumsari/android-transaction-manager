@@ -8,7 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -94,6 +94,11 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.navigation_form_transaction) navView.visibility = View.GONE
+            else navView.visibility = View.VISIBLE
+        }
+
         LocalBroadcastManager.getInstance(this).registerReceiver(br, filter)
 
         val serviceIntent = Intent(this, AuthService::class.java)
@@ -102,7 +107,6 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
         connectivityObserver.observe().onEach {
             networkState = it
-            Log.v("abecekut", "Status is $it")
             if (it == ConnectivityObserver.NetworkState.UNAVAILABLE || it == ConnectivityObserver.NetworkState.LOST) {
                 runOnUiThread {
                     val builder: AlertDialog.Builder = AlertDialog.Builder(this@MainActivity)
