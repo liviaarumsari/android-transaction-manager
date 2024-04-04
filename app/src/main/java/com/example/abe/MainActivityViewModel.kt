@@ -25,22 +25,21 @@ class MainActivityViewModel(private val transactionRepository: TransactionReposi
 
     suspend fun exportTransactionsToExcel(contentResolver: ContentResolver, uri: Uri, user: String) {
         val headerList = listOf("ID Transaksi", "Email", "Judul", "Nominal", "Pengeluaran", "Waktu Transasksi")
-        val transactions = transactionRepository.getAll(user).value
+        val transactions = transactionRepository.getAll(user)
+
         val dataList = mutableListOf<List<String>>()
         val currencyFormatter = FormatCurrencyUseCase()
 
-        if (transactions != null) {
-            for (trx in transactions) {
-                val rowData = listOf<String>(
-                    trx.id.toString(),
-                    trx.email,
-                    trx.title,
-                    currencyFormatter(trx.amount),
-                    if (trx.isExpense) "Ya" else "Tidak",
-                    SimpleDateFormat("d MMM yyyy" , Locale.ENGLISH).format(trx.timestamp)
-                )
-                dataList.add(rowData)
-            }
+        for (trx in transactions) {
+            val rowData = listOf<String>(
+                trx.id.toString(),
+                trx.email,
+                trx.title,
+                currencyFormatter(trx.amount),
+                if (trx.isExpense) "Ya" else "Tidak",
+                SimpleDateFormat("d MMM yyyy" , Locale.ENGLISH).format(trx.timestamp)
+            )
+            dataList.add(rowData)
         }
 
         val generateExcel = GenerateExcelUseCase(newExcelFormat, contentResolver,  uri, "Transaksi", headerList, dataList)

@@ -10,7 +10,7 @@ import com.example.abe.data.TransactionRepository
 class TransactionViewModel(private val transactionRepository: TransactionRepository) : ViewModel() {
 
     fun getAllTransactions(user: String): LiveData<List<Transaction>> {
-        return transactionRepository.getAll(user)
+        return transactionRepository.getAllObservable(user)
     }
 }
 

@@ -23,7 +23,10 @@ interface TransactionDAO {
     suspend fun deleteAll()
 
     @Query("SELECT * FROM transactions WHERE email = :email")
-    fun getAll(vararg email: String): LiveData<List<Transaction>>
+    fun getAllObservable(vararg email: String): LiveData<List<Transaction>>
+
+    @Query("SELECT * FROM transactions WHERE email = :email")
+    suspend fun getAll(vararg email: String): List<Transaction>
 
     @Query("SELECT * FROM transactions WHERE id = :id")
     suspend fun getById(id: Int): Transaction
