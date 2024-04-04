@@ -23,9 +23,9 @@ class MainActivityViewModel(private val transactionRepository: TransactionReposi
         return "Daftar-Transaksi_$date"
     }
 
-    suspend fun exportTransactionsToExcel(contentResolver: ContentResolver, uri: Uri) {
+    suspend fun exportTransactionsToExcel(contentResolver: ContentResolver, uri: Uri, user: String) {
         val headerList = listOf("ID Transaksi", "Email", "Judul", "Nominal", "Pengeluaran", "Waktu Transasksi")
-        val transactions = transactionRepository.allTransaction.value
+        val transactions = transactionRepository.getAll(user).value
         val dataList = mutableListOf<List<String>>()
         val currencyFormatter = FormatCurrencyUseCase()
 
@@ -47,12 +47,12 @@ class MainActivityViewModel(private val transactionRepository: TransactionReposi
         generateExcel()
     }
 
-    suspend fun createEmailIntent(context: Context): Intent {
+    suspend fun createEmailIntent(context: Context, user: String): Intent {
         clearExportCacheFiles(context)
         val newFile = File(context.externalCacheDir, if (newExcelFormat) "export.xlsx" else "export.xls")
         val contentUri =
             FileProvider.getUriForFile(context, "com.example.abe.fileprovider", newFile)
-        exportTransactionsToExcel(context.contentResolver, contentUri)
+        exportTransactionsToExcel(context.contentResolver, contentUri, user)
 
         val intent = Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_EMAIL, arrayOf("13521134@std.stei.itb.ac.id"))

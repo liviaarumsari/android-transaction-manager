@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.abe.ABEApplication
+import com.example.abe.R
 import com.example.abe.databinding.FragmentTransactionsBinding
 import com.example.abe.types.FragmentListener
 
@@ -21,10 +22,6 @@ class TransactionFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-
-    companion object {
-        fun newInstance() = TransactionFragment()
-    }
 
     interface ItemClickListener {
         fun onItemClicked(id: Int)
@@ -44,7 +41,14 @@ class TransactionFragment : Fragment() {
         binding.rvTransactions.adapter = transactionsAdapter
         binding.rvTransactions.layoutManager = LinearLayoutManager(context)
 
-        viewModel.allTransactions.observe(viewLifecycleOwner) { transactions ->
+        val sharedPref = requireActivity().getSharedPreferences(
+            getString(R.string.preference_file_key),
+            Context.MODE_PRIVATE
+        )
+        val user = sharedPref.getString("user", "").toString()
+
+//        TODO: check only for transactions by current user
+        viewModel.getAllTransactions(user).observe(viewLifecycleOwner) { transactions ->
             transactions?.let {
                 transactionsAdapter.submitList(it)
             }

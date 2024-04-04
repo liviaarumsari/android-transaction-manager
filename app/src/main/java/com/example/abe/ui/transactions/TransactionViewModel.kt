@@ -1,13 +1,17 @@
 package com.example.abe.ui.transactions
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.abe.data.Transaction
 import com.example.abe.data.TransactionRepository
 
 
 class TransactionViewModel(private val transactionRepository: TransactionRepository) : ViewModel() {
 
-    val allTransactions = transactionRepository.allTransaction
+    fun getAllTransactions(user: String): LiveData<List<Transaction>> {
+        return transactionRepository.getAll(user)
+    }
 }
 
 class TransactionViewModelFactory(private val repository: TransactionRepository) :
