@@ -33,7 +33,6 @@ class GenerateExcelUseCase(
                     val outputStream = contentResolver.openOutputStream(uri)
                     workbook.write(outputStream)
                     outputStream?.close()
-                    Log.d("ABE-EXPORT", "Finish writing file")
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
