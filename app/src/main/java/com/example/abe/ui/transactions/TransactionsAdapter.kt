@@ -4,9 +4,9 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -18,7 +18,7 @@ import java.util.Locale
 
 class TransactionsAdapter(private val itemClickListener: TransactionFragment.ItemClickListener, private val context: Context): ListAdapter<Transaction, TransactionsAdapter.TransactionViewHolder>(TransactionComparator()) {
     class TransactionViewHolder(val view: View): RecyclerView.ViewHolder(view) {
-        val clImageContainer: ConstraintLayout
+        val flImageContainer: FrameLayout
         val ivTrxIcon: ImageView
 
         val tvTrxTitle: TextView
@@ -27,7 +27,7 @@ class TransactionsAdapter(private val itemClickListener: TransactionFragment.Ite
         val tvAmount: TextView
 
         init {
-            clImageContainer = view.findViewById(R.id.clImageContainer)
+            flImageContainer = view.findViewById(R.id.flImageContainer)
             ivTrxIcon = view.findViewById(R.id.ivTrxIcon)
 
             tvTrxTitle = view.findViewById(R.id.tvTrxTitle)
@@ -57,7 +57,7 @@ class TransactionsAdapter(private val itemClickListener: TransactionFragment.Ite
             val trx = getItem(position)
 
             if (!trx.isExpense) {
-                clImageContainer.setBackgroundColor(context.getColor(R.color.secondary))
+                flImageContainer.setBackgroundColor(context.getColor(R.color.secondary))
                 ivTrxIcon.setImageResource(R.drawable.ic_circle_arrow_down)
                 tvAmount.setTextColor(context.getColor(R.color.success))
             }

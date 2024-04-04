@@ -7,7 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -47,7 +47,9 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
     }
 
     private lateinit var connectivityObserver: ConnectivityObserver
-    private lateinit var networkState:ConnectivityObserver.NetworkState
+    private lateinit var networkState: ConnectivityObserver.NetworkState
+
+    private lateinit var user: String
 
     private val filter = IntentFilter().apply {
         addAction("RANDOMIZE_TRANSACTION")
@@ -61,6 +63,9 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
                     val bundle = Bundle().apply {
                         putInt("random_amount", randomAmount)
                     }
+                    navController.navigate(
+                        R.id.action_navigation_settings_to_navigation_transactions
+                    )
                     navController.navigate(
                         R.id.action_navigation_transactions_to_navigation_form_transaction,
                         bundle
@@ -89,6 +94,7 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.navigation_transactions,
+                R.id.navigation_graph,
                 R.id.navigation_settings,
                 R.id.navigation_scan
             )
@@ -96,15 +102,19 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.navigation_form_transaction) navView.visibility = View.GONE
+            else navView.visibility = View.VISIBLE
+        }
+
         LocalBroadcastManager.getInstance(this).registerReceiver(br, filter)
 
         val serviceIntent = Intent(this, AuthService::class.java)
-        startService(serviceIntent);
+        startService(serviceIntent)
 
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
         connectivityObserver.observe().onEach {
             networkState = it
-            Log.v("abecekut", "Status is $it")
             if (it == ConnectivityObserver.NetworkState.UNAVAILABLE || it == ConnectivityObserver.NetworkState.LOST) {
                 runOnUiThread {
                     val builder: AlertDialog.Builder = AlertDialog.Builder(this@MainActivity)
@@ -120,6 +130,12 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
                 }
             }
         }.launchIn(lifecycleScope)
+
+        val sharedPref = getSharedPreferences(
+            getString(R.string.preference_file_key),
+            Context.MODE_PRIVATE
+        )
+        user = sharedPref.getString("user", "").toString()
     }
 
     override fun onIntentReceived(action: String, info: String?) {
@@ -181,7 +197,7 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
             val exportLoadDialog = ExportLoadDialogFragment()
 
             exportLoadDialog.show(supportFragmentManager, "LOAD_DIALOG")
-            val intent = viewModel.createEmailIntent(applicationContext)
+            val intent = viewModel.createEmailIntent(applicationContext, user)
             exportLoadDialog.dismiss()
 
             if (intent.resolveActivity(packageManager) != null) {
@@ -197,8 +213,13 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
                 data?.data?.also { uri ->
                     lifecycleScope.launch {
                         viewModel.exportTransactionsToExcel(
-                            applicationContext.contentResolver, uri
+                            applicationContext.contentResolver, uri, user
                         )
+                        Toast.makeText(
+                            applicationContext,
+                            "Successfully saved transaction to storage",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
             }
@@ -208,7 +229,7 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         super.onDestroy()
         LocalBroadcastManager.getInstance(this).registerReceiver(br, filter)
         val serviceIntent = Intent(this, AuthService::class.java)
-        stopService(serviceIntent);
+        stopService(serviceIntent)
     }
 
     override fun onSupportNavigateUp(): Boolean {

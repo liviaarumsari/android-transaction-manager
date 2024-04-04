@@ -1,16 +1,15 @@
 package com.example.abe.ui.transactions
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.abe.ABEApplication
+import com.example.abe.R
 import com.example.abe.databinding.FragmentTransactionsBinding
 import com.example.abe.types.FragmentListener
 
@@ -23,10 +22,6 @@ class TransactionFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-
-    companion object {
-        fun newInstance() = TransactionFragment()
-    }
 
     interface ItemClickListener {
         fun onItemClicked(id: Int)
@@ -46,27 +41,16 @@ class TransactionFragment : Fragment() {
         binding.rvTransactions.adapter = transactionsAdapter
         binding.rvTransactions.layoutManager = LinearLayoutManager(context)
 
-        viewModel.allTransactions.observe(viewLifecycleOwner) { transactions ->
+        val sharedPref = requireActivity().getSharedPreferences(
+            getString(R.string.preference_file_key),
+            Context.MODE_PRIVATE
+        )
+        val user = sharedPref.getString("user", "").toString()
+
+//        TODO: check only for transactions by current user
+        viewModel.getAllTransactions(user).observe(viewLifecycleOwner) { transactions ->
             transactions?.let {
                 transactionsAdapter.submitList(it)
-            }
-        }
-
-        binding.fabExport.setOnClickListener {
-            ExportAlertDialogFragment.newInstance(ExportAlertDialogTypeEnum.EXPORT)
-                .show(requireActivity().supportFragmentManager, "EXPORT_DIALOG")
-        }
-
-        binding.fabEmail.setOnClickListener {
-            ExportAlertDialogFragment.newInstance(ExportAlertDialogTypeEnum.SEND_EMAIL)
-                .show(requireActivity().supportFragmentManager, "EXPORT_DIALOG")
-        }
-
-        binding.fabRandom.setOnClickListener {
-            Intent().also { intent ->
-                intent.setAction("RANDOMIZE_TRANSACTION")
-                intent.putExtra("random_amount", (10000..100000).random())
-                LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent)
             }
         }
 
