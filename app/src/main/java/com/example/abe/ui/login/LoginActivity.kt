@@ -3,8 +3,9 @@ package com.example.abe.ui.login
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import android.util.Patterns
 import android.view.View
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -17,6 +18,7 @@ import com.example.abe.data.network.LoginResultCallback
 import com.example.abe.data.network.Retrofit
 import com.example.abe.databinding.ActivityLoginBinding
 import com.example.abe.utils.isConnected
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -85,9 +87,15 @@ class LoginActivity : AppCompatActivity(), LoginResultCallback {
         }.launchIn(lifecycleScope)
 
         binding.btnSignIn.setOnClickListener {
+            setHelperText(binding.formEmailContainer, binding.emailInput, true)
+            setHelperText(binding.formPasswordContainer, binding.passwordInput, false)
+
             email = binding.emailInput.text.toString()
             val password: String = binding.passwordInput.text.toString()
 
+            if (email.isEmpty() || password.isEmpty()) {
+                return@setOnClickListener
+            }
             if (!isConnected(networkState)) {
                 binding.loginLayout.visibility = View.GONE
                 binding.noNetworkLayout.visibility = View.VISIBLE
@@ -99,6 +107,35 @@ class LoginActivity : AppCompatActivity(), LoginResultCallback {
         binding.btnTryAgain.setOnClickListener {
             binding.noNetworkLayout.visibility = View.GONE
             binding.loginLayout.visibility = View.VISIBLE
+        }
+
+        emailFocusListener()
+        passwordFocusListener()
+    }
+
+    private fun emailFocusListener() {
+        binding.emailInput.setOnFocusChangeListener { _, focused ->
+            if (!focused) setHelperText(binding.formEmailContainer, binding.emailInput, true)
+        }
+    }
+
+    private fun passwordFocusListener() {
+        binding.passwordInput.setOnFocusChangeListener { _, focused ->
+            if (!focused) setHelperText(binding.formPasswordContainer, binding.passwordInput, false)
+        }
+    }
+
+    private fun isValidEmail(email: String): Boolean {
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    }
+
+    private fun setHelperText(container: TextInputLayout, editText: EditText, isEmail: Boolean) {
+        if (editText.text.toString().isEmpty()) {
+            container.helperText = "This field is required"
+        } else if (isEmail && !isValidEmail(editText.text.toString())) {
+            container.helperText = "Invalid email address"
+        } else {
+            container.helperText = null
         }
     }
 }
