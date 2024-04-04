@@ -22,7 +22,6 @@ class AuthService : Service(), CheckAuthResultCallback {
         isRunning = true
         Thread {
             while (isRunning) {
-                Log.d("ABE-SRV", "Service still running")
                 val retrofit = Retrofit()
                 val sharedPref = getSharedPreferences(
                     getString(R.string.preference_file_key),
