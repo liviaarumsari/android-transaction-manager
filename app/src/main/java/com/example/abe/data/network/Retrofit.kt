@@ -108,6 +108,8 @@ class Retrofit {
         val requestFile = file
             .asRequestBody(mimeType.toMediaTypeOrNull())
 
+        Log.d("ABE-PHO", "size: ${file.length() / 1024}")
+
         // MultipartBody.Part is used to send also the actual file name
         val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
 

@@ -1,6 +1,7 @@
 package com.example.abe.ui.scanner
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
@@ -8,11 +9,12 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.location.Address
 import android.location.Geocoder
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,18 +22,22 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.bumptech.glide.Glide
-import com.example.abe.R
-import androidx.camera.core.*
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.example.abe.ABEApplication
-import com.example.abe.data.network.Retrofit
+import com.example.abe.R
 import com.example.abe.data.network.ItemsRoot
+import com.example.abe.data.network.Retrofit
 import com.example.abe.data.network.UploadResultCallback
 import com.example.abe.databinding.FragmentScanBinding
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -52,6 +58,10 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var latitude = 0.0
     private var longitude = 0.0
+    private var useDefaultLocation = false
+
+    private val DEFAULT_LATITUDE = -6.892382
+    private val DEFAULT_LONGINTUDE = 107.608352
 
     private lateinit var user: String
 
@@ -62,14 +72,15 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     private var isCameraPermissionDenied = false
     private var isRequestingPermission = false
 
-    private val requestPermissionLauncher =
+    private var uploadResponse: ItemsRoot? = null
+
+    private val requestCameraPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             isRequestingPermission = false
             if (isGranted) {
                 startCameraOrHandlePermission()
             } else {
                 isCameraPermissionDenied = true
-                Log.d(TAG, "Camera permission denied")
             }
         }
 
@@ -85,15 +96,16 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         return tempFile
     }
 
-    private val openGalleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val imageUri = result.data?.data
-            if (imageUri != null) {
-                val imageFile = uriToFile(imageUri)
-                attemptUpload(imageFile)
+    private val openGalleryLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val imageUri = result.data?.data
+                if (imageUri != null) {
+                    val imageFile = uriToFile(imageUri)
+                    attemptUpload(imageFile)
+                }
             }
         }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -105,7 +117,10 @@ class ScannerFragment : Fragment(), UploadResultCallback {
 
         requestCameraPermission()
 
-        val sharedPref = activity?.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+        val sharedPref = activity?.getSharedPreferences(
+            getString(R.string.preference_file_key),
+            Context.MODE_PRIVATE
+        )
         user = sharedPref?.getString("user", "").toString()
 
         binding.captureButton.setOnClickListener {
@@ -134,13 +149,15 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         if (cameraPermissionGranted()) {
             startCamera()
         } else if (isCameraPermissionDenied) {
-            Toast.makeText(requireContext(), "Camera permission denied, unable to use scanner", Toast.LENGTH_SHORT).show()
-            Log.d(TAG, "Camera permission denied, unable to use scanner")
+            Toast.makeText(
+                requireContext(),
+                "Camera permission denied, unable to use scanner",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
     companion object {
-        private const val TAG = "ABE-PHO"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
     }
 
@@ -168,8 +185,8 @@ class ScannerFragment : Fragment(), UploadResultCallback {
                     viewLifecycleOwner, cameraSelector, preview, imageCapture
                 )
 
-            } catch(exc: Exception) {
-                Log.e(TAG, "Use case binding failed", exc)
+            } catch (exc: Exception) {
+                exc.printStackTrace()
             }
 
         }, ContextCompat.getMainExecutor(requireContext()))
@@ -178,7 +195,6 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     private fun attemptUpload(imageFile: File) {
         val retrofit = Retrofit()
         val context = requireContext()
-        Log.d(TAG, "size: ${imageFile.length()/1024}")
         retrofit.upload(context, imageFile, this)
     }
 
@@ -203,13 +219,11 @@ class ScannerFragment : Fragment(), UploadResultCallback {
                 val imageFile = File(filePath)
                 attemptUpload(imageFile)
 
-                val msg = "Photo sent!"
+                val msg = "Uploading photo, please wait"
                 Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-                Log.d(TAG, msg)
 
                 dialog.dismiss()
             } else {
-                Log.e(TAG, "File path is null for imageUri: $imageUri")
                 dialog.dismiss()
             }
         }
@@ -236,7 +250,8 @@ class ScannerFragment : Fragment(), UploadResultCallback {
             ContextCompat.getMainExecutor(requireContext()),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onError(exc: ImageCaptureException) {
-                    Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
+                    Toast.makeText(requireContext(), "Photo capture failed", Toast.LENGTH_SHORT)
+                        .show()
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
@@ -247,81 +262,100 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         )
     }
 
-    private fun getLastLocation() {
+    private fun setLocationAsDefault() {
+        latitude = DEFAULT_LATITUDE
+        longitude = DEFAULT_LONGINTUDE
+        useDefaultLocation = true
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getCurrentLocation() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (checkLocationPermissions() && checkIfLocationEnabled()) {
             fusedLocationClient.lastLocation
                 .addOnSuccessListener { location: android.location.Location? ->
                     location?.let {
                         latitude = location.latitude
                         longitude = location.longitude
-                        Log.d(TAG, "Latitude: $latitude, Longitude: $longitude")
                     }
                 }
-                .addOnFailureListener { e ->
-                    Log.e(TAG, "Failed to get location: ${e.message}", e)
+                .addOnFailureListener {
+                    setLocationAsDefault()
                 }
         } else {
-            Log.e(TAG, "Location permission not granted")
+            setLocationAsDefault()
         }
     }
+
+    private fun checkLocationPermissions(): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+            requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun checkIfLocationEnabled(): Boolean {
+        val locationManager: LocationManager =
+            requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+            LocationManager.NETWORK_PROVIDER
+        )
+    }
+
+    private fun askForLocationPermissions() {
+        requestLocationLauncher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        )
+    }
+
+    private val requestLocationLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            var granted = false
+            permissions.entries.forEach {
+                if (it.value) granted = true
+            }
+            if (granted) {
+                getCurrentLocation()
+            } else {
+                setLocationAsDefault()
+            }
+            intsertItems()
+        }
 
     override fun onSuccess(uploadResponse: ItemsRoot) {
-        Log.e(TAG, "Upload success")
+        this.uploadResponse = uploadResponse
 
-        uploadResponse.items.items.forEach {item ->
-            requestPermissionLauncher.launch(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-            )
-
-            requestPermissionLauncher.launch(
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-
-            val geocoder = Geocoder(requireContext(), Locale.getDefault())
-            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
-            var locationName = ""
-
-            if (
-                !(ContextCompat.checkSelfPermission(
-                    requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-            ) {
-                latitude = -6.892382
-                longitude = 107.608352
-                locationName = if (addresses?.isNotEmpty() == true) {
-                    val address = addresses[0]
-                    address.getAddressLine(0)
-                } else {
-                    "Unknown location"
-                }
-            } else {
-                getLastLocation()
-                locationName = if (addresses?.isNotEmpty() == true) {
-                    val address = addresses[0]
-                    address.getAddressLine(0)
-                } else {
-                    "Unknown location"
-                }
-            }
-
-            viewModel.insertTransaction(user, item, latitude, longitude, locationName)
-
-            val msg = "New transactions added!"
-            Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-            Log.d(TAG, msg)
-
-            findNavController().navigate(R.id.action_navigation_scanner_to_navigation_transactions)
-            Log.d(TAG, "Navigate to transaction list")
+        if (checkLocationPermissions()) {
+            getCurrentLocation()
+            intsertItems()
+        } else {
+            askForLocationPermissions()
         }
     }
 
+    fun intsertItems() {
+        val geocoder = Geocoder(requireContext(), Locale.getDefault())
+        val locationList: MutableList<Address> =
+            geocoder.getFromLocation(latitude, longitude, 1) ?: mutableListOf<Address>()
+        val location =
+            if (!useDefaultLocation && locationList.size > 0) (locationList[0].getAddressLine(0)) else "Unknown location"
+
+        uploadResponse?.items?.items?.forEach { item ->
+            viewModel.insertTransaction(user, item, latitude, longitude, location)
+        }
+        val msg = "New transactions added!"
+        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+
+        findNavController().navigate(R.id.action_navigation_scanner_to_navigation_transactions)
+        uploadResponse = null
+    }
 
     override fun onFailure(errorMessage: String) {
         Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
-        Log.e(TAG, errorMessage)
     }
 
     private fun openGallery() {
@@ -331,11 +365,12 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     }
 
     private fun cameraPermissionGranted() = ContextCompat.checkSelfPermission(
-        requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+        requireContext(), Manifest.permission.CAMERA
+    ) == PackageManager.PERMISSION_GRANTED
 
     private fun requestCameraPermission() {
         isRequestingPermission = true
-        requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+        requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
     }
 
     override fun onResume() {
