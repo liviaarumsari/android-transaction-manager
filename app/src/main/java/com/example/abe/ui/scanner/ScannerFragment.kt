@@ -72,6 +72,8 @@ class ScannerFragment : Fragment(), UploadResultCallback {
 
     private var isProcessingPhoto = false
 
+    private lateinit var waitingUploadDialog: Dialog
+
     private val viewModel: ScannerViewModel by viewModels {
         ScannerViewModelFactory((activity?.application as ABEApplication).repository)
     }
@@ -160,6 +162,11 @@ class ScannerFragment : Fragment(), UploadResultCallback {
             openGallery()
         }
 
+        waitingUploadDialog = Dialog(requireContext()).apply {
+            setCancelable(false)
+            setContentView(R.layout.dialog_waiting_upload)
+        }
+
         return binding.root
     }
 
@@ -199,6 +206,8 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     }
 
     private fun attemptUpload(imageFile: File) {
+        waitingUploadDialog.show()
+
         lifecycleScope.launch {
             val retrofit = Retrofit()
             val token = (activity as MainActivity).preferenceDataStoreHelper.getFirstPreference(
@@ -385,6 +394,8 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         uploadResponse?.items?.items?.forEach { item ->
             viewModel.insertTransaction(user, item, latitude, longitude, location)
         }
+
+        waitingUploadDialog.dismiss()
         val msg = "New transactions added!"
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
 
@@ -397,6 +408,7 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         Toast.makeText(requireContext(), "Upload failed", Toast.LENGTH_SHORT).show()
         Log.e("ABE-PHO", errorMessage)
         isProcessingPhoto = false
+        waitingUploadDialog.dismiss()
     }
 
     private fun openGallery() {
