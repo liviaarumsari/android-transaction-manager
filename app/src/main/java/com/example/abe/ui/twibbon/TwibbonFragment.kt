@@ -47,6 +47,8 @@ class TwibbonFragment : Fragment() {
 
     private var imageCapture: ImageCapture? = null
 
+    private var isProcessingPhoto = false
+
     companion object {
         private const val TAG = "ABE-TWB"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
@@ -64,7 +66,13 @@ class TwibbonFragment : Fragment() {
             requestCameraPermissions()
         }
 
-        binding.btnCaptureTwibbon.setOnClickListener { previewTwibbon() }
+        binding.btnCaptureTwibbon.setOnClickListener {
+            if (cameraPermissionsGranted()) {
+                previewTwibbon()
+            } else {
+                Toast.makeText(requireContext(), "Please allow camera to take photos", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         return binding.root
     }
@@ -115,6 +123,12 @@ class TwibbonFragment : Fragment() {
         }
 
     private fun previewTwibbon() {
+        if (isProcessingPhoto) {
+            Toast.makeText(requireContext(), "Unable to take picture, processing previous image", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        isProcessingPhoto = true
         Toast.makeText(requireContext(), "Generating twibbon", Toast.LENGTH_SHORT).show()
         val imageCapture = imageCapture ?: return
         deletePreviousTwibbons()
@@ -138,6 +152,7 @@ class TwibbonFragment : Fragment() {
                 override fun onError(exc: ImageCaptureException) {
                     Toast.makeText(requireContext(), "Photo capture failed", Toast.LENGTH_SHORT)
                         .show()
+                    isProcessingPhoto = false
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
@@ -151,8 +166,6 @@ class TwibbonFragment : Fragment() {
 
     private fun overlayTwibbonToImage(imageUri: Uri) {
         try {
-            Log.d(TAG, "Start overlaying twibbon")
-
             val exifIms = requireActivity().contentResolver.openInputStream(imageUri) ?: return
             val exif = ExifInterface(exifIms)
             val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1)
@@ -255,7 +268,6 @@ class TwibbonFragment : Fragment() {
             fos.flush()
             fos.close()
 
-            Log.d(TAG, "Finished overlaying twibbon")
         } catch (e: FileNotFoundException) {
             e.printStackTrace()
         }
@@ -272,9 +284,8 @@ class TwibbonFragment : Fragment() {
     }
 
     private fun showPreviewDialog(imageUri: Uri) {
-        Log.d(TAG, "Previewing twibbon")
-
         val dialog = Dialog(requireContext()).apply {
+            setCancelable(false)
             setContentView(R.layout.dialog_twibbon_preview)
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
@@ -288,6 +299,7 @@ class TwibbonFragment : Fragment() {
         val closeButton = dialog.findViewById<Button>(R.id.btnCloseTwibbon)
 
         closeButton.setOnClickListener {
+            isProcessingPhoto = false
             dialog.dismiss()
         }
 

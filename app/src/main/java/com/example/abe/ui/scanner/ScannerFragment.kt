@@ -139,15 +139,20 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         }
 
         lifecycleScope.launch {
-            user =  (activity as MainActivity).preferenceDataStoreHelper.getFirstPreference(
-                PreferenceDataStoreConstants.USER,"")
+            user = (activity as MainActivity).preferenceDataStoreHelper.getFirstPreference(
+                PreferenceDataStoreConstants.USER, ""
+            )
         }
 
         binding.captureButton.setOnClickListener {
             if (cameraPermissionGranted()) {
                 takePicture()
             } else {
-                Toast.makeText(requireContext(), "Please allow camera to take photos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Please allow camera to take photos",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -196,13 +201,17 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     private fun attemptUpload(imageFile: File) {
         lifecycleScope.launch {
             val retrofit = Retrofit()
-            val token = (activity as MainActivity).preferenceDataStoreHelper.getFirstPreference(PreferenceDataStoreConstants.TOKEN, "")
+            val token = (activity as MainActivity).preferenceDataStoreHelper.getFirstPreference(
+                PreferenceDataStoreConstants.TOKEN,
+                ""
+            )
             retrofit.upload(token, imageFile, this@ScannerFragment)
         }
     }
 
     private fun showPreviewDialog(imageUri: Uri) {
         val dialog = Dialog(requireContext()).apply {
+            setCancelable(false)
             setContentView(R.layout.dialog_image_preview)
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
@@ -218,23 +227,25 @@ class ScannerFragment : Fragment(), UploadResultCallback {
 
         confirmButton.setOnClickListener {
             val activity = activity as MainActivity
-            if(!isConnected(activity.getNetworkState())) {
+            if (!isConnected(activity.getNetworkState())) {
                 dialog.dismiss()
                 binding.scanLayout.visibility = View.GONE
                 binding.noNetworkLayout.visibility = View.VISIBLE
+                isProcessingPhoto = false
             } else {
-            val filePath = imageUri.path
-            if (filePath != null) {
-                val imageFile = File(filePath)
-                attemptUpload(imageFile)
+                val filePath = imageUri.path
+                if (filePath != null) {
+                    val imageFile = File(filePath)
+                    attemptUpload(imageFile)
 
-                val msg = "Uploading photo, please wait"
-                Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+                    val msg = "Uploading photo, please wait"
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
 
-                dialog.dismiss()
-            } else {
-                dialog.dismiss()
-            }
+                    dialog.dismiss()
+                } else {
+                    isProcessingPhoto = false
+                    dialog.dismiss()
+                }
             }
         }
 
@@ -245,6 +256,7 @@ class ScannerFragment : Fragment(), UploadResultCallback {
 
         cancelButton.setOnClickListener {
             dialog.dismiss()
+            isProcessingPhoto = false
         }
 
         dialog.show()
@@ -252,7 +264,11 @@ class ScannerFragment : Fragment(), UploadResultCallback {
 
     private fun takePicture() {
         if (isProcessingPhoto) {
-            Toast.makeText(requireContext(), "Unable to take picture, processing previous image", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Unable to take picture, processing previous image",
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
 
@@ -279,7 +295,6 @@ class ScannerFragment : Fragment(), UploadResultCallback {
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val savedUri = Uri.fromFile(photoFile)
                     showPreviewDialog(savedUri)
-                    isProcessingPhoto = false
                 }
             }
         )
@@ -386,7 +401,11 @@ class ScannerFragment : Fragment(), UploadResultCallback {
 
     private fun openGallery() {
         if (isProcessingPhoto) {
-            Toast.makeText(requireContext(), "Unable choose image, processing previous image", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Unable choose image, processing previous image",
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
 
