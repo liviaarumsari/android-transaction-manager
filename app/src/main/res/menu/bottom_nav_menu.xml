@@ -7,9 +7,16 @@
         android:title="Transaction" />
 
     <item
+        android:id="@+id/navigation_twibbon"
+        android:icon="@drawable/ic_twibbon"
+        android:title="Twibbon"
+        />
+
+    <item
         android:id="@+id/navigation_scan"
         android:icon="@drawable/ic_scan"
         android:title="Scan" />
+
 
     <item
         android:id="@+id/navigation_graph"

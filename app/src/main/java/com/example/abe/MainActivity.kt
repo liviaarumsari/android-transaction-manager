@@ -96,6 +96,7 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
                 R.id.navigation_transactions,
                 R.id.navigation_graph,
                 R.id.navigation_settings,
+                R.id.navigation_twibbon,
                 R.id.navigation_scan
             )
         )

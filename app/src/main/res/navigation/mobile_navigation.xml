@@ -57,6 +57,13 @@
             app:destination="@id/navigation_transactions" />
     </fragment>
 
+    <fragment
+        android:id="@+id/navigation_twibbon"
+        android:label="Twibbon"
+        android:name="com.example.abe.ui.twibbon.TwibbonFragment"
+        tools:layout="@layout/fragment_twibbon"
+        />
+
 <!--    Example when fragment & layout is done-->
 <!--    <fragment-->
 <!--        android:id="@+id/navigation_graph"-->
