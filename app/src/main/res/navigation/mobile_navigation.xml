@@ -29,7 +29,7 @@
     <fragment
         android:id="@+id/navigation_scan"
         android:name="com.example.abe.ui.scanner.ScannerFragment"
-        android:label="Scan"
+        android:label="Transaction Scan"
         tools:layout="@layout/fragment_scan">
 
         <action
@@ -42,7 +42,7 @@
 
     <fragment
         android:id="@+id/navigation_graph"
-        android:label="Graph"
+        android:label="Transaction Graph"
         android:name="com.example.abe.ui.graph.GraphFragment"
         tools:layout="@layout/fragment_graph"
         />
@@ -50,7 +50,7 @@
     <fragment
         android:id="@+id/navigation_settings"
         android:name="com.example.abe.ui.settings.SettingsFragment"
-        android:label="Settings"
+        android:label="Other Settings"
         tools:layout="@layout/fragment_settings" >
         <action
             android:id="@+id/action_navigation_settings_to_navigation_transactions"

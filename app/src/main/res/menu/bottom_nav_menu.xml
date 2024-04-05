@@ -4,7 +4,7 @@
     <item
         android:id="@+id/navigation_transactions"
         android:icon="@drawable/ic_transactions"
-        android:title="Transaction" />
+        android:title="@string/transaction" />
 
     <item
         android:id="@+id/navigation_twibbon"
@@ -15,18 +15,18 @@
     <item
         android:id="@+id/navigation_scan"
         android:icon="@drawable/ic_scan"
-        android:title="Scan" />
+        android:title="@string/scan" />
 
 
     <item
         android:id="@+id/navigation_graph"
         android:icon="@drawable/ic_graph"
-        android:title="Graph" />
+        android:title="@string/graph" />
 
     <item
         android:id="@+id/navigation_settings"
         android:icon="@drawable/ic_settings"
-        android:title="Settings"
+        android:title="@string/settings"
         />
 
 </menu>

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#9759C4</color>
-    <color name="primaryActive">#8346AA</color>
-    <color name="secondary">#F7D047</color>
-    <color name="secondaryActive">#EEA035</color>
-    <color name="success">#59921B</color>
+    <color name="primary">#461767</color>
+    <color name="primaryActive">#5c3078</color>
+    <color name="secondary">#C17A30</color>
+    <color name="secondaryActive">#F6BE00</color>
+    <color name="success">#4B7D17</color>
     <color name="destructive">#C81823</color>
-    <color name="grayDark">#A9A9A9</color>
+    <color name="grayDark">#212121</color>
     <color name="grayLight">#F5F5F8</color>
     <color name="black">#090909</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="purple_700">#8346AA</color>
-    <color name="purple_200">#9759C4</color>
+    <color name="purple_700">#461767</color>
+    <color name="purple_200">#5c3078</color>
     <color name="teal_200">#80CBC4</color>
 </resources>
