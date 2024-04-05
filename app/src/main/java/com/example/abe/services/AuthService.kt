@@ -1,45 +1,45 @@
 package com.example.abe.services
 
-import android.app.Service
-import android.content.Context
 import android.content.Intent
-import android.os.Handler
 
 import android.os.IBinder
-import android.os.Looper
-import android.util.Log
-import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.example.abe.R
-import com.example.abe.data.network.CheckAuthResponse
+import com.example.abe.data.local.PreferenceDataStoreConstants
+import com.example.abe.data.local.PreferenceDataStoreHelper
 import com.example.abe.data.network.CheckAuthResultCallback
 import com.example.abe.data.network.Retrofit
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
-class AuthService : Service(), CheckAuthResultCallback {
+class AuthService : LifecycleService(), CheckAuthResultCallback {
     var isRunning: Boolean = false
+    private lateinit var preferenceDataStoreHelper: PreferenceDataStoreHelper
+    override fun onCreate() {
+        super.onCreate()
+        preferenceDataStoreHelper = PreferenceDataStoreHelper(applicationContext)
+    }
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
         isRunning = true
-        Thread {
+        lifecycleScope.launch {
             while (isRunning) {
                 val retrofit = Retrofit()
-                val sharedPref = getSharedPreferences(
-                    getString(R.string.preference_file_key),
-                    Context.MODE_PRIVATE
+                val token = preferenceDataStoreHelper.getFirstPreference(
+                    PreferenceDataStoreConstants.TOKEN,
+                    ""
                 )
-                val token = sharedPref.getString("login_token", "").toString()
-                retrofit.checkAuth(token, this)
-                try {
-                    Thread.sleep(30000)
-                } catch (e: InterruptedException) {
-                    e.printStackTrace()
-                }
+                retrofit.checkAuth(token, this@AuthService)
+                delay(30000)
             }
-        }.start()
+        }
         return START_NOT_STICKY
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
+    override fun onBind(intent: Intent): IBinder? {
+        super.onBind(intent)
         return null
     }
 
@@ -51,6 +51,7 @@ class AuthService : Service(), CheckAuthResultCallback {
     }
 
     override fun onDestroy() {
+        super.onDestroy()
         isRunning = false
     }
 }
