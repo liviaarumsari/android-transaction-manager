@@ -97,7 +97,43 @@ Berikut adalah library yang digunakan pada aplikasi
 ## _Completed Bonus_
 
 ### Accessibility Testing
-   berikut adalah testing ...
+   Hasil analisis menggunakan aplikasi Accessibility Scanner, ditemukan beberapa kekurangan berikut
+
+   1. Perlunya perbaikan contrast warna pada komponen UI
+   <img src="./doc/need-tune-color-contrast-1.jpg" alt="Sugestion to tune color contrast on navigation icon" width="400">
+   <img src="./doc/need-tune-color-contrast-2.jpg" alt="Sugestion to tune color contrast on input field" width="400">
+   <img src="./doc/need-tune-color-contrast-3.jpg" alt="Sugestion to tune color contrast on price text color" width="400">
+   <img src="./doc/need-tune-color-contrast-4.jpg" alt="Sugestion to tune color contrast on location text color" width="400">
+   <img src="./doc/need-tune-color-contrast-5.jpg" alt="Sugestion to tune color contrast on transaction icon" width="500">
+   <img src="./doc/need-tune-color-contrast-6.jpg" alt="Sugestion to tune color contrast on percentage icon" width="400">
+
+   2. Perlu penambahan item label pada komponen UI
+   <img src="./doc/need-add-item-label-1.jpg" alt="Sugestion to change item label on category input field" width="400">
+   <img src="./doc/need-add-item-label-2.jpg" alt="Sugestion to change item label on capture photo button" width="400">
+
+   3. Perlu penambahan item desciprition pada komponen UI
+   <img src="./doc/need-change-item-description-1.jpg" alt="Sugestion to change item description on fragment title" width="400">
+
+   4. Perlu memperbesar touch target
+   <img src="./doc/need-larger-touch-target.jpg" alt="Sugestion to enlarge touch target on open in map button" width="400">
+
+   Dari temuan tersebut, telah diperbaiki beberapa hal dari aplikasi yaitu sebagai berikut
+
+   1. Perubahan warna pada tema aplikasi
+   2. Penambahan label pada komponen _input field category_ dan tombol _capture_ pada _scanner_
+   3. Penambahan deskripsi pada komponen title dari fragment scan, graph, dan settings
+   4. Memperbesar _touch target_ menjadi 48dp pada tombol open in map
+
+   Dengan perbaikan-perbaikan tersebut, diperoleh hasil analisis dari Accessibility Scanner yang lebih minim sugesti untuk perbaikan. Berikut hasil analisis terbarunya
+
+   <img src="./doc/after-tuning-1.jpg" alt="Graph fragment after accessibility tuning" width="400">
+   <img src="./doc/after-tuning-2.jpg" alt="Transaction fragment after accessibility tuning" width="400">
+   <img src="./doc/after-tuning-3.jpg" alt="Form Transaction fragment after accessibility tuning" width="400">
+   <img src="./doc/after-tuning-4.jpg" alt="Scanner fragment after accessibility tuning" width="400">
+   <img src="./doc/after-tuning-5.jpg" alt="Settings fragment after accessibility tuning" width="400">
+   <img src="./doc/after-tuning-6.jpg" alt="Transaction item after accessibility tuning" width="400">
+   <img src="./doc/after-tuning-7.jpg" alt="Login Activity after accessibility tuning" width="400">
+
 ### Twibbon
    Twibbon diimplementasikan pada halaman twibbon
 ### OWASP
