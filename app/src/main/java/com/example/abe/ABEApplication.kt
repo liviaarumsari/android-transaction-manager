@@ -1,8 +1,8 @@
 package com.example.abe
 
 import android.app.Application
-import com.example.abe.data.TransactionDatabase
-import com.example.abe.data.TransactionRepository
+import com.example.abe.data.db.TransactionDatabase
+import com.example.abe.data.db.TransactionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 

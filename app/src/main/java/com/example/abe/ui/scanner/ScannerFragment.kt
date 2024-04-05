@@ -40,9 +40,9 @@ import com.example.abe.ABEApplication
 import com.example.abe.MainActivity
 import com.example.abe.R
 import com.example.abe.data.local.PreferenceDataStoreConstants
-import com.example.abe.data.network.ItemsRoot
-import com.example.abe.data.network.Retrofit
-import com.example.abe.data.network.UploadResultCallback
+import com.example.abe.api.ItemsRoot
+import com.example.abe.api.Retrofit
+import com.example.abe.api.UploadResultCallback
 import com.example.abe.databinding.FragmentScanBinding
 import com.example.abe.utils.isConnected
 import com.google.android.gms.location.FusedLocationProviderClient

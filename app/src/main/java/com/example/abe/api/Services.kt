@@ -1,4 +1,4 @@
-package com.example.abe.data.network
+package com.example.abe.api
 
 import okhttp3.MultipartBody
 import retrofit2.Call

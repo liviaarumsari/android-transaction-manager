@@ -1,13 +1,13 @@
 package com.example.abe.ui.scanner
 
 import androidx.lifecycle.ViewModel
-import com.example.abe.data.TransactionRepository
+import com.example.abe.data.db.TransactionRepository
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
-import com.example.abe.data.Transaction
-import com.example.abe.data.network.TransactionItem
+import com.example.abe.data.db.Transaction
+import com.example.abe.api.TransactionItem
 import java.util.Date
 
 class ScannerViewModel(private val transactionRepository: TransactionRepository):

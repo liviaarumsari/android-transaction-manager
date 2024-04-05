@@ -16,9 +16,10 @@ import com.example.abe.connection.NetworkConnectivityObserver
 import com.example.abe.data.local.PreferenceDataStoreConstants.TOKEN
 import com.example.abe.data.local.PreferenceDataStoreConstants.USER
 import com.example.abe.data.local.PreferenceDataStoreHelper
-import com.example.abe.data.network.LoginResultCallback
-import com.example.abe.data.network.Retrofit
+import com.example.abe.api.LoginResultCallback
+import com.example.abe.api.Retrofit
 import com.example.abe.databinding.ActivityLoginBinding
+import com.example.abe.api.LoginResponse
 import com.example.abe.utils.isConnected
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.flow.launchIn
@@ -45,7 +46,7 @@ class LoginActivity : AppCompatActivity(), LoginResultCallback {
 
     private lateinit var preferenceDataStoreHelper: PreferenceDataStoreHelper
 
-    override fun onSuccess(loginResponse: com.example.abe.data.network.LoginResponse) {
+    override fun onSuccess(loginResponse: LoginResponse) {
         println("Login successful: $loginResponse")
 
         lifecycleScope.launch {
