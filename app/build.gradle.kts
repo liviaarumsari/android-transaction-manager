@@ -71,5 +71,5 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
-    implementation("org.jsoup:jsoup:1.14.3")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 }
