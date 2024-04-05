@@ -70,6 +70,8 @@ class ScannerFragment : Fragment(), UploadResultCallback {
 
     private lateinit var user: String
 
+    private var isProcessingPhoto = false
+
     private val viewModel: ScannerViewModel by viewModels {
         ScannerViewModelFactory((activity?.application as ABEApplication).repository)
     }
@@ -117,6 +119,7 @@ class ScannerFragment : Fragment(), UploadResultCallback {
                 } else {
                     val msg = "Failed to fetch image from gallery"
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                    isProcessingPhoto = false
                 }
             }
         }
@@ -141,7 +144,11 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         }
 
         binding.captureButton.setOnClickListener {
-            takePicture()
+            if (cameraPermissionGranted()) {
+                takePicture()
+            } else {
+                Toast.makeText(requireContext(), "Please allow camera to take photos", Toast.LENGTH_SHORT).show()
+            }
         }
 
         binding.galleryPreviewButton.setOnClickListener {
@@ -244,6 +251,11 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     }
 
     private fun takePicture() {
+        if (isProcessingPhoto) {
+            Toast.makeText(requireContext(), "Unable to take picture, processing previous image", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val imageCapture = imageCapture
 
         val photoFile = File(
@@ -253,6 +265,7 @@ class ScannerFragment : Fragment(), UploadResultCallback {
 
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
+        isProcessingPhoto = true
         imageCapture.takePicture(
             outputOptions,
             ContextCompat.getMainExecutor(requireContext()),
@@ -260,11 +273,13 @@ class ScannerFragment : Fragment(), UploadResultCallback {
                 override fun onError(exc: ImageCaptureException) {
                     Toast.makeText(requireContext(), "Photo capture failed", Toast.LENGTH_SHORT)
                         .show()
+                    isProcessingPhoto = false
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val savedUri = Uri.fromFile(photoFile)
                     showPreviewDialog(savedUri)
+                    isProcessingPhoto = false
                 }
             }
         )
@@ -293,6 +308,7 @@ class ScannerFragment : Fragment(), UploadResultCallback {
                 }
         } else {
             setLocationAsDefault()
+            insertItems()
         }
     }
 
@@ -359,16 +375,24 @@ class ScannerFragment : Fragment(), UploadResultCallback {
 
         findNavController().navigate(R.id.action_navigation_scanner_to_navigation_transactions)
         uploadResponse = null
+        isProcessingPhoto = false
     }
 
     override fun onFailure(errorMessage: String) {
         Toast.makeText(requireContext(), "Upload failed", Toast.LENGTH_SHORT).show()
         Log.e("ABE-PHO", errorMessage)
+        isProcessingPhoto = false
     }
 
     private fun openGallery() {
+        if (isProcessingPhoto) {
+            Toast.makeText(requireContext(), "Unable choose image, processing previous image", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
+        isProcessingPhoto = true
         openGalleryLauncher.launch(intent)
     }
 
