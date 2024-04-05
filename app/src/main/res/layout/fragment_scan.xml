@@ -40,6 +40,7 @@
 
             <Button
                 android:id="@+id/captureButton"
+                android:contentDescription="@string/capture_photo"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:layout_marginTop="16dp"
@@ -57,7 +58,7 @@
                 android:layout_height="52dp"
                 android:adjustViewBounds="true"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Get Photo from Gallery"
+                android:contentDescription="@string/get_photo_from_gallery"
                 android:padding="10dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_gallery"

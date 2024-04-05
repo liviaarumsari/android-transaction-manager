@@ -32,6 +32,7 @@
             app:layout_constraintTop_toBottomOf="@+id/appName"
             app:layout_constraintVertical_bias="0.5"
             app:layout_constraintVertical_chainStyle="packed"
+            app:boxStrokeColor="@color/black"
             >
 
             <com.google.android.material.textfield.TextInputEditText
@@ -40,7 +41,9 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:maxLength="255"
-                android:hint="Email"
+                android:hint="@string/email"
+                app:boxStrokeColor="@color/black"
+                android:textColorHint="@color/black"
                 android:inputType="textEmailAddress"
                 android:outlineAmbientShadowColor="#000000"
                 android:outlineProvider="background" />
@@ -61,6 +64,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/formEmailContainer"
             app:layout_constraintVertical_bias="0.5"
+            app:boxStrokeColor="@color/black"
             >
 
             <com.google.android.material.textfield.TextInputEditText
@@ -69,7 +73,9 @@
                 android:layout_height="wrap_content"
                 android:maxLength="255"
                 android:ems="10"
-                android:hint="Password"
+                android:hint="@string/password"
+                app:boxStrokeColor="@color/black"
+                android:textColorHint="@color/black"
                 android:inputType="textPassword"
                 />
 
@@ -82,7 +88,7 @@
             android:layout_marginHorizontal="20dp"
             android:layout_height="match_parent"
             android:layout_marginTop="36dp"
-            android:text="Sign in"
+            android:text="@string/sign_in"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -97,7 +103,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:fontFamily="@font/roboto_medium"
-            android:text="Welcome back to"
+            android:text="@string/greeting"
             android:textColor="#000000"
             android:textSize="20sp"
             app:layout_constraintBottom_toTopOf="@+id/appName"
@@ -115,7 +121,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="64dp"
             android:fontFamily="@font/carter_one"
-            android:text="Bondoman"
+            android:text="@string/bondoman"
             android:textColor="#9759C4"
             android:textSize="24sp"
             android:textStyle="bold"

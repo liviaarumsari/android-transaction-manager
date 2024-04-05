@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="capture_photo">Capture Button</string>
+    <string name="email">Email</string>
+    <string name="sign_in">Sign in</string>
+    <string name="greeting">Welcome back to</string>
+</resources>
