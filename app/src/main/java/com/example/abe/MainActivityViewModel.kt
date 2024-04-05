@@ -20,11 +20,11 @@ class MainActivityViewModel(private val transactionRepository: TransactionReposi
 
     fun getExportFileName(): String {
         val date = SimpleDateFormat("yyyy-MM-dd_hh-mm-ss" , Locale.ENGLISH).format(Date())
-        return "Daftar-Transaksi_$date"
+        return "Transaction_$date"
     }
 
     suspend fun exportTransactionsToExcel(contentResolver: ContentResolver, uri: Uri, user: String) {
-        val headerList = listOf("ID Transaksi", "Email", "Judul", "Nominal", "Pengeluaran", "Waktu Transasksi")
+        val headerList = listOf("Transaction Date", "Category", "Amount", "Title", "Location")
         val transactions = transactionRepository.getAll(user)
 
         val dataList = mutableListOf<List<String>>()
@@ -32,30 +32,30 @@ class MainActivityViewModel(private val transactionRepository: TransactionReposi
 
         for (trx in transactions) {
             val rowData = listOf<String>(
-                trx.id.toString(),
-                trx.email,
-                trx.title,
+                SimpleDateFormat("d MMM yyyy" , Locale.ENGLISH).format(trx.timestamp),
+                if (trx.isExpense) "Expense" else "Income",
                 currencyFormatter(trx.amount),
-                if (trx.isExpense) "Ya" else "Tidak",
-                SimpleDateFormat("d MMM yyyy" , Locale.ENGLISH).format(trx.timestamp)
+                trx.title,
+                trx.location
             )
             dataList.add(rowData)
         }
 
-        val generateExcel = GenerateExcelUseCase(newExcelFormat, contentResolver,  uri, "Transaksi", headerList, dataList)
+        val generateExcel = GenerateExcelUseCase(newExcelFormat, contentResolver,  uri, "Transaction", headerList, dataList)
         generateExcel()
     }
 
     suspend fun createEmailIntent(context: Context, user: String): Intent {
         clearExportCacheFiles(context)
-        val newFile = File(context.externalCacheDir, if (newExcelFormat) "export.xlsx" else "export.xls")
+        val newFile = File(context.externalCacheDir, if (newExcelFormat) "transaction-export.xlsx" else "transaction-export.xls")
         val contentUri =
             FileProvider.getUriForFile(context, "com.example.abe.fileprovider", newFile)
         exportTransactionsToExcel(context.contentResolver, contentUri, user)
 
         val intent = Intent(Intent.ACTION_SEND).apply {
-            putExtra(Intent.EXTRA_EMAIL, arrayOf("13521134@std.stei.itb.ac.id"))
-            putExtra(Intent.EXTRA_SUBJECT, "test subject")
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(user))
+            putExtra(Intent.EXTRA_SUBJECT, getExportFileName())
+            putExtra(Intent.EXTRA_TEXT, "Here is attached all the transactions export from Bondoman. Download this app to use the feature!")
 
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             setDataAndType(contentUri, context.contentResolver.getType(contentUri))
