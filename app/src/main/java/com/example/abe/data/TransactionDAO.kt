@@ -22,10 +22,10 @@ interface TransactionDAO {
     @Query("DELETE FROM transactions")
     suspend fun deleteAll()
 
-    @Query("SELECT * FROM transactions WHERE email = :email")
+    @Query("SELECT * FROM transactions WHERE email = :email ORDER BY timestamp DESC")
     fun getAllObservable(vararg email: String): LiveData<List<Transaction>>
 
-    @Query("SELECT * FROM transactions WHERE email = :email")
+    @Query("SELECT * FROM transactions WHERE email = :email ORDER BY timestamp DESC")
     suspend fun getAll(vararg email: String): List<Transaction>
 
     @Query("SELECT * FROM transactions WHERE id = :id")
