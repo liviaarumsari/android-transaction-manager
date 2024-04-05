@@ -115,6 +115,7 @@ class TwibbonFragment : Fragment() {
         }
 
     private fun previewTwibbon() {
+        Toast.makeText(requireContext(), "Generating twibbon", Toast.LENGTH_SHORT).show()
         val imageCapture = imageCapture ?: return
         deletePreviousTwibbons()
 
