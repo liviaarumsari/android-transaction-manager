@@ -59,7 +59,6 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var latitude = 0.0
     private var longitude = 0.0
-    private var useDefaultLocation = false
 
     private val DEFAULT_LATITUDE = -6.892382
     private val DEFAULT_LONGINTUDE = 107.608352
@@ -256,7 +255,6 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     private fun setLocationAsDefault() {
         latitude = DEFAULT_LATITUDE
         longitude = DEFAULT_LONGINTUDE
-        useDefaultLocation = true
     }
 
     @SuppressLint("MissingPermission")
@@ -333,7 +331,7 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         val locationList: MutableList<Address> =
             geocoder.getFromLocation(latitude, longitude, 1) ?: mutableListOf<Address>()
         val location =
-            if (!useDefaultLocation && locationList.size > 0) (locationList[0].getAddressLine(0)) else "Unknown location"
+            if (locationList.size > 0) (locationList[0].getAddressLine(0)) else "Unknown location"
 
         uploadResponse?.items?.items?.forEach { item ->
             viewModel.insertTransaction(user, item, latitude, longitude, location)
