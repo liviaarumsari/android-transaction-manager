@@ -114,14 +114,11 @@ class ScannerFragment : Fragment(), UploadResultCallback {
                 val imageUri = result.data?.data
                 if (imageUri != null) {
                     val imageFile = uriToFile(imageUri)
+                    isProcessingPhoto = true
                     attemptUpload(imageFile)
-
-                    val msg = "Uploading photo, please wait"
-                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                 } else {
                     val msg = "Failed to fetch image from gallery"
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-                    isProcessingPhoto = false
                 }
             }
         }
@@ -206,6 +203,13 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     }
 
     private fun attemptUpload(imageFile: File) {
+        val activity = activity as MainActivity
+        if (!isConnected(activity.getNetworkState())) {
+            binding.scanLayout.visibility = View.GONE
+            binding.noNetworkLayout.visibility = View.VISIBLE
+            isProcessingPhoto = false
+            return
+        }
         waitingUploadDialog.show()
 
         lifecycleScope.launch {
@@ -214,6 +218,8 @@ class ScannerFragment : Fragment(), UploadResultCallback {
                 PreferenceDataStoreConstants.TOKEN,
                 ""
             )
+            val msg = "Uploading photo, please wait"
+            Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
             retrofit.upload(token, imageFile, this@ScannerFragment)
         }
     }
@@ -235,26 +241,14 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         val cancelButton = dialog.findViewById<Button>(R.id.cancel_button)
 
         confirmButton.setOnClickListener {
-            val activity = activity as MainActivity
-            if (!isConnected(activity.getNetworkState())) {
+            val filePath = imageUri.path
+            if (filePath != null) {
+                val imageFile = File(filePath)
+                attemptUpload(imageFile)
                 dialog.dismiss()
-                binding.scanLayout.visibility = View.GONE
-                binding.noNetworkLayout.visibility = View.VISIBLE
-                isProcessingPhoto = false
             } else {
-                val filePath = imageUri.path
-                if (filePath != null) {
-                    val imageFile = File(filePath)
-                    attemptUpload(imageFile)
-
-                    val msg = "Uploading photo, please wait"
-                    Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
-
-                    dialog.dismiss()
-                } else {
-                    isProcessingPhoto = false
-                    dialog.dismiss()
-                }
+                isProcessingPhoto = false
+                dialog.dismiss()
             }
         }
 
@@ -423,7 +417,6 @@ class ScannerFragment : Fragment(), UploadResultCallback {
 
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
-        isProcessingPhoto = true
         openGalleryLauncher.launch(intent)
     }
 
