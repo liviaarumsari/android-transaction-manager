@@ -1,4 +1,4 @@
-package com.example.abe.data.network
+package com.example.abe.api
 
 import android.util.Log
 import okhttp3.MediaType.Companion.toMediaTypeOrNull

@@ -2,7 +2,7 @@ package com.example.abe.ui.graph
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.abe.data.TransactionRepository
+import com.example.abe.data.db.TransactionRepository
 
 class GraphViewModel(private val transactionRepository: TransactionRepository) : ViewModel() {
     suspend fun getExpenses(user: String): Int {

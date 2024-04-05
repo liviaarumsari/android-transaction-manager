@@ -1,13 +1,12 @@
 package com.example.abe.ui.form_transaction
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
-import com.example.abe.data.Transaction
-import com.example.abe.data.TransactionRepository
+import com.example.abe.data.db.Transaction
+import com.example.abe.data.db.TransactionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

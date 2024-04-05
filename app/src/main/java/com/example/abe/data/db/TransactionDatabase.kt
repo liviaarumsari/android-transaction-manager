@@ -1,4 +1,4 @@
-package com.example.abe.data
+package com.example.abe.data.db
 
 import android.content.Context
 import androidx.room.Database

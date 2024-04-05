@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.abe.R
-import com.example.abe.data.Transaction
+import com.example.abe.data.db.Transaction
 import com.example.abe.domain.FormatCurrencyUseCase
 import java.text.SimpleDateFormat
 import java.util.Locale
