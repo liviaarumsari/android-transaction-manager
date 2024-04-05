@@ -8,8 +8,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.abe.data.local.PreferenceDataStoreConstants
 import com.example.abe.data.local.PreferenceDataStoreHelper
-import com.example.abe.data.network.CheckAuthResultCallback
-import com.example.abe.data.network.Retrofit
+import com.example.abe.api.CheckAuthResultCallback
+import com.example.abe.api.Retrofit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

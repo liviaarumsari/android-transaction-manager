@@ -3,8 +3,8 @@ package com.example.abe.ui.transactions
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.abe.data.Transaction
-import com.example.abe.data.TransactionRepository
+import com.example.abe.data.db.Transaction
+import com.example.abe.data.db.TransactionRepository
 
 
 class TransactionViewModel(private val transactionRepository: TransactionRepository) : ViewModel() {

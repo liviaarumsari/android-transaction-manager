@@ -1,4 +1,4 @@
-package com.example.abe.data.network
+package com.example.abe.api
 
 data class LoginRequest (
     val email: String,
