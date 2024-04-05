@@ -1,93 +1,121 @@
-# IF3210-2024-Android-ABE
+# Bondoman
+
+> Disusun untuk memenuhi Tugas Besar IF3210 Pengembangan Aplikasi pada Platform Khusus
+> Tugas Besar 1 - Android
+
+## Deskripsi Aplikasi
+
+**Bondoman** adalah sebuah aplikasi pencatatan transaksi yang dapat digunakan melalui platform Android. Aplikasi menyediakan berbagai fitur berkaitan dengan pencatatan transaksi seperti scan, graph, dan export. Pengguna harus memiliki akun untuk dapat melakukan manajemen transaksi dan memanfaatkan fitur-fitur lainnya.
+
+## Library
+
+Berikut adalah library yang digunakan pada aplikasi
+1. AndroidX Core KTX 
+2. AndroidX AppCompat 
+3. Material Components for Android
+4. AndroidX ConstraintLayout
+5. AndroidX Lifecycle LiveData KTX
+6. AndroidX Lifecycle ViewModel KTX
+7. AndroidX Navigation Fragment KTX
+8. AndroidX Navigation UI KTX
+9. AndroidX RecyclerView
+10. AndroidX Room Runtime
+11. AndroidX Room KTX 
+12. AndroidX Retrofit 
+13. AndroidX Retrofit Gson 
+14. Apache POI 
+15. Apache POI OOXML 
+16. CameraX Core 
+17. CameraX Lifecycle 
+18. CameraX View 
+19. Glide 
+20. Glide Compiler (for annotation processing)
+21. AndroidX Activity 
+22. Google Play Services Location 
+23. OkHttp 
+24. Logging Interceptor 
+25. AndroidX Room Compiler (for annotation processing)
+26. AndroidX Legacy Support v4 
+27. AndroidX Fragment KTX 
+28. JUnit (for testing)
+29. AndroidX JUnit (for Android testing)
+30. AndroidX Espresso Core (for UI testing)
+31. MPAndroidChart 
+32. AndroidX DataStore Preferences
+
+## Screenshot Tampilan Aplikasi
+
+### Login
+
+![Login](./screenshots/login.png)
+
+### Halaman Daftar Transaksi
+
+![Halaman Daftar Transaksi](./screenshots/register.png)
+
+### Form Penambahan Transaksi
+
+![Form Penambahan Transaksi](./screenshots/home.png)
+
+### Form Pengeditan Transaksi
+
+![Form Pengeditan Transaksi](./screenshots/list-album-1.png)
+
+### Halaman Scan Nota
+
+![Halaman Scan Nota](./screenshots/search-sort-filter-1.png)
+
+### Halaman Graf
+
+![Halaman Graf](./screenshots/detail-film.png)
+
+### Halaman Twibbon
+
+![Halaman Twibbon](./screenshots/detail-film.png)
+
+### Halaman Pengaturan
+
+![Halaman Pengaturan](./screenshots/edit-film.jpg)
 
 
+## Pembagian Kerja
 
-## Getting started
+|  Anggota |                                                                              Tugas                                                                             |
+|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| 13521057 | Login, Halaman settings, Halaman Scan, Accessibility testing                                                                                                   |
+| 13521094 | Setup theme and styles, Form penambahan dan pengubahan transaksi, Hapus transaksi, Background service JWT, Logout, Network Sensing, Randomize Transaksi, OWASP |
+| 13521134 | Setup room database, Halaman daftar transaksi dan open in map, Penyimpanan dalam bentuk .xls .xlsx, Intent Gmail, Halaman Graf, Twibbon, Halaman Scan          |
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Jumlah Jam Pengerjaan
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+| Anggota  | Jumlah Jam |
+|----------|------------|
+| 13521057 | 18         |
+| 13521094 | 18         |
+| 13521134 | 18         |
 
-## Add your files
+## _Completed Bonus_
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+### Accessibility Testing
+   berikut adalah testing ...
+### Twibbon
+   Twibbon diimplementasikan pada halaman twibbon
+### OWASP
+#### M4: Insufficient Input/Output Validation
+Kerentanan ini dapat terjadi pada aplikasi jika aplikasi tidak melakukan validasi input data user. Tanpa validasi input yang baik, terdapat beberapa isu keamanan seperti injection attacks (SQL injection, command injection) dan buffer overflows. Kerentanan ini terdapat pada bagian yang membutuhkan input user untuk berhubungan dengan server maupun database aplikasi, seperti halaman login dan halaman form transaksi. Maka dari itu, dilakukan perbaikan dengan melakukan beberapa tahap validasi input sebagai berikut:
+* Input Validation: Validasi sesuai dengan tipe input untuk memastikan isi input sesuai dengan yang diharapkan. Contohnya yaitu validasi email.
+* Input Validation: Membatasi panjang input dengan memanfaatkan properti maxLength pada EditText
+* Secure Coding Practices: menggunakan parameterized query untuk mencegah SQL injection
+#### M8: Security Misconfiguration
+Kerentanan ini berasal dari kesalahan konfigurasi settings pada aplikasi atau environment. Kesalahan konfigurasi ini dapat menyebabkan berbagai masalah keamanan, seperti unauthorized access dan kebocoran data. Beberapa hal yang dilakukan dalam mengurangi kerentanan yaitu:
+* Least privilege principle: hanya melakukan request permission yang dibutuhkan fitur aplikasi saja. Request juga dilakukan ketika user ingin memakai fitur yang berkaitan.
+* Only necessary export: Hanya melakukan export pada activity yang dibutuhkan, yaitu activity login.
+* Insecure permissions: Tidak menyimpan data penting pada file dengan overly permissive permissions seperti shared preferences.
+#### M9: Insecure Data Storage
+Kerentanan ini dapat menyebabkan agen eksternal mendapatkan akses yang unauthorized terhadap informasi sensitif. Beberapa hal yang dilakukan dalam mengurangi kerentanan yaitu:
+* Employ Proper Access Controls: dengan hanya menampilkan data aplikasi yang sesuai dengan user yang terautentikasi. Aplikasi hanya memberikan akses melihat daftar transaksi dari transaksi yang dimiliki user yang sedang login.
+* Secure Data Transmission: menggunakan protokol HTTPS ketika melakukan komunikasi dengan server.
+* Apply Secure Session Management: dilakukan manajemen session dengan memvalidasi expired token user setiap 30 detik. Dengan manajemen session ini, dapat dipastikan user yang sedang menggunakan aplikasi adalah user yang sudah terautentikasi dan memiliki token yang belum expired.
 
-```
-cd existing_repo
-git remote add origin https://gitlab.informatika.org/HoseaNA/if3210-2024-android-abe.git
-git branch -M main
-git push -uf origin main
-```
+   
 
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.informatika.org/HoseaNA/if3210-2024-android-abe/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
