@@ -47,35 +47,35 @@ Berikut adalah library yang digunakan pada aplikasi
 
 ### Login
 
-![Login](./screenshots/login.png)
+<img src="./screenshots/login.jpg" alt="Login page" width="400">
 
 ### Halaman Daftar Transaksi
 
-![Halaman Daftar Transaksi](./screenshots/register.png)
+<img src="./screenshots/transaction-list.jpg" alt="Transaction page" width="400">
 
 ### Form Penambahan Transaksi
 
-![Form Penambahan Transaksi](./screenshots/home.png)
+<img src="./screenshots/add-transaction.jpg" alt="Transaction page" width="400">
 
 ### Form Pengeditan Transaksi
 
-![Form Pengeditan Transaksi](./screenshots/list-album-1.png)
+<img src="./screenshots/edit-transaction.jpg" alt="Transaction page" width="400">
 
 ### Halaman Scan Nota
 
-![Halaman Scan Nota](./screenshots/search-sort-filter-1.png)
+<img src="./screenshots/scanner.jpg" alt="Transaction page" width="400">
 
 ### Halaman Graf
 
-![Halaman Graf](./screenshots/detail-film.png)
+<img src="./screenshots/graph.jpg" alt="Transaction page" width="400">
 
 ### Halaman Twibbon
 
-![Halaman Twibbon](./screenshots/detail-film.png)
+<img src="./screenshots/twibbon.jpg" alt="Transaction page" width="400">
 
 ### Halaman Pengaturan
 
-![Halaman Pengaturan](./screenshots/edit-film.jpg)
+<img src="./screenshots/settings.jpg" alt="Transaction page" width="400">
 
 
 ## Pembagian Kerja
