@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.camera.lifecycle)
     implementation(libs.camera.view)
     implementation(libs.glide)
+    implementation(libs.androidx.exifinterface)
     annotationProcessor(libs.glideCompiler)
     implementation(libs.androidx.activity)
     implementation(libs.play.services.location)
@@ -72,4 +73,5 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation("org.jsoup:jsoup:1.14.3")
+
 }

@@ -1,7 +1,6 @@
 package com.example.abe.ui.twibbon
 
 import android.Manifest
-import android.R.attr
 import android.app.Dialog
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -11,7 +10,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.drawable.ColorDrawable
-import android.media.ExifInterface
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -28,6 +26,7 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.abe.R
@@ -36,7 +35,6 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
-import java.io.InputStream
 import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -48,7 +46,6 @@ class TwibbonFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var imageCapture: ImageCapture? = null
-    private lateinit var cameraExecutor: ExecutorService
 
     companion object {
         private const val TAG = "ABE-TWB"
@@ -68,7 +65,6 @@ class TwibbonFragment : Fragment() {
         }
 
         binding.btnCaptureTwibbon.setOnClickListener { previewTwibbon() }
-        binding.ibtnCustomTwibbon.setOnClickListener { setCustomTwibbon() }
 
         return binding.root
     }
@@ -92,9 +88,10 @@ class TwibbonFragment : Fragment() {
                 cameraProvider.unbindAll()
 
                 cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview, imageCapture)
+                    this, cameraSelector, preview, imageCapture
+                )
 
-            } catch(exc: Exception) {
+            } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
 
@@ -103,14 +100,17 @@ class TwibbonFragment : Fragment() {
 
     private val cameraPermissionsLauncher =
         registerForActivityResult(
-            ActivityResultContracts.RequestPermission())
+            ActivityResultContracts.RequestPermission()
+        )
         { isGranted ->
             if (isGranted) {
                 startCamera()
             } else {
-                Toast.makeText(requireContext(),
+                Toast.makeText(
+                    requireContext(),
                     "Please allow camera to use Twibbon",
-                    Toast.LENGTH_SHORT).show()
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -120,7 +120,12 @@ class TwibbonFragment : Fragment() {
 
         val photoFile = File(
             requireContext().cacheDir,
-            "twibbon_${SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis())}.jpg"
+            "twibbon_${
+                SimpleDateFormat(
+                    FILENAME_FORMAT,
+                    Locale.US
+                ).format(System.currentTimeMillis())
+            }.jpg"
         )
 
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
@@ -146,28 +151,100 @@ class TwibbonFragment : Fragment() {
     private fun overlayTwibbonToImage(imageUri: Uri) {
         try {
             Log.d(TAG, "Start overlaying twibbon")
-            val ims: InputStream = requireActivity().contentResolver.openInputStream(imageUri) ?: return
 
-            val photoBitmap = BitmapFactory.decodeStream(ims)
-            val orientation = ExifInterface(ims).getAttributeInt(ExifInterface.TAG_ORIENTATION, 1)
-            val photoMatrix = Matrix()
-            if (orientation == 6) {
-                photoMatrix.postRotate(90f)
-            } else if (orientation == 3) {
-                photoMatrix.postRotate(180f)
-            } else if (orientation == 8) {
-                photoMatrix.postRotate(270f)
+            val exifIms = requireActivity().contentResolver.openInputStream(imageUri) ?: return
+            val exif = ExifInterface(exifIms)
+            val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1)
+
+            val overlayBitmap = BitmapFactory.decodeResource(
+                requireContext().resources,
+                R.drawable.img_default_twibbon
+            )
+
+            val bitmapIms = requireActivity().contentResolver.openInputStream(imageUri) ?: return
+            val originalPhotoBitmap = BitmapFactory.decodeStream(bitmapIms)
+            val rotationMatrix = Matrix()
+
+            when (orientation) {
+                6 -> {
+                    rotationMatrix.postRotate(90f)
+                }
+
+                3 -> {
+                    rotationMatrix.postRotate(180f)
+                }
+
+                8 -> {
+                    rotationMatrix.postRotate(270f)
+                }
             }
 
-            val overlayBitmap = BitmapFactory.decodeResource(requireContext().resources, R.drawable.img_default_twibbon)
+            val rotatedBitmap = Bitmap.createBitmap(
+                originalPhotoBitmap,
+                0,
+                0,
+                originalPhotoBitmap.width,
+                originalPhotoBitmap.height,
+                rotationMatrix,
+                true
+            )
 
-            val bmOverlay = Bitmap.createBitmap(overlayBitmap.height, overlayBitmap.width, photoBitmap.getConfig())
-            val canvas = Canvas(bmOverlay)
-            canvas.drawBitmap(photoBitmap, photoMatrix, null)
+            val flipMatrix = Matrix().apply {
+                postScale(
+                    -1f,
+                    1f,
+                    rotatedBitmap.width.toFloat() / 2,
+                    rotatedBitmap.height.toFloat()
+                )
+            }
+            val flippedBitmap = Bitmap.createBitmap(
+                rotatedBitmap,
+                0,
+                0,
+                rotatedBitmap.width,
+                rotatedBitmap.height,
+                flipMatrix,
+                true
+            )
+
+            val scaleMatrix = Matrix().apply {
+                val scale = overlayBitmap.width.toFloat() / flippedBitmap.width.toFloat()
+                postScale(
+                    scale,
+                    scale,
+                    flippedBitmap.width.toFloat(),
+                    flippedBitmap.height.toFloat()
+                )
+            }
+
+            val photoBitmap = Bitmap.createBitmap(
+                flippedBitmap,
+                0,
+                0,
+                flippedBitmap.width,
+                flippedBitmap.height,
+                scaleMatrix,
+                true
+            )
+            val translateMatrix = Matrix().apply {
+                postTranslate(
+                    0f,
+                    (overlayBitmap.height.toFloat() - photoBitmap.height.toFloat()) / 2f
+                )
+            }
+
+            val resultBitmap =
+                Bitmap.createBitmap(
+                    overlayBitmap.width,
+                    overlayBitmap.height,
+                    overlayBitmap.getConfig()
+                )
+            val canvas = Canvas(resultBitmap)
+            canvas.drawBitmap(photoBitmap, translateMatrix, null)
             canvas.drawBitmap(overlayBitmap, Matrix(), null)
 
             val bos = ByteArrayOutputStream()
-            bmOverlay.compress(CompressFormat.JPEG, 100 /*ignored for PNG*/, bos)
+            resultBitmap.compress(CompressFormat.JPEG, 100, bos)
             val bitmapData = bos.toByteArray()
 
             val f = File(URI(imageUri.toString()))
@@ -222,9 +299,5 @@ class TwibbonFragment : Fragment() {
 
     private fun requestCameraPermissions() {
         cameraPermissionsLauncher.launch(Manifest.permission.CAMERA)
-    }
-
-    private fun setCustomTwibbon() {
-        TODO("Not yet implemented")
     }
 }
