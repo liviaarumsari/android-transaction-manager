@@ -46,7 +46,7 @@ class FormTransaction : Fragment() {
 
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private val permissionId = 5
+    private var isNewTrx = true
 
     private val viewModel: FormTransactionViewModel by viewModels {
         FormTransactionViewModelFactory((activity?.application as ABEApplication).repository)
@@ -107,6 +107,7 @@ class FormTransaction : Fragment() {
             if (args.containsKey("idx-id")) {
                 val trxId = args.getInt("idx-id")
                 displayTrx(trxId)
+                isNewTrx = false
             } else if (args.containsKey("random_amount")) {
                 viewModel.setRandomAmount(args.getInt("random_amount"))
                 useNewTrxLayout()
@@ -271,7 +272,7 @@ class FormTransaction : Fragment() {
         }
         if (granted) {
             getCurrentLocation()
-        } else {
+        } else if (isNewTrx) {
             val defaultLatitude = -6.892382
             val defaultLongitude = 107.608352
             Toast.makeText(requireActivity(), "Location set to default", Toast.LENGTH_SHORT).show()
@@ -307,13 +308,13 @@ class FormTransaction : Fragment() {
                 val location: Location? = task.result
                 if (location != null) {
                     setLocation(location.latitude, location.longitude)
-                } else {
+                } else if (isNewTrx) {
                     Toast.makeText(requireActivity(), "Location set to default", Toast.LENGTH_SHORT)
                         .show()
                     setLocation(defaultLatitude, defaultLongitude)
                 }
             }
-        } else {
+        } else if (isNewTrx) {
             Toast.makeText(requireActivity(), "Location set to default", Toast.LENGTH_SHORT).show()
             setLocation(defaultLatitude, defaultLongitude)
         }
