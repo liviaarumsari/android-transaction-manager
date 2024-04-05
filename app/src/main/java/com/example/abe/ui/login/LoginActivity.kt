@@ -1,6 +1,5 @@
 package com.example.abe.ui.login
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
@@ -11,9 +10,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.abe.MainActivity
-import com.example.abe.R
 import com.example.abe.connection.ConnectivityObserver
 import com.example.abe.connection.NetworkConnectivityObserver
+import com.example.abe.data.local.PreferenceDataStoreConstants.TOKEN
+import com.example.abe.data.local.PreferenceDataStoreConstants.USER
+import com.example.abe.data.local.PreferenceDataStoreHelper
 import com.example.abe.data.network.LoginResultCallback
 import com.example.abe.data.network.Retrofit
 import com.example.abe.databinding.ActivityLoginBinding
@@ -21,6 +22,7 @@ import com.example.abe.utils.isConnected
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity(), LoginResultCallback {
 
@@ -40,20 +42,19 @@ class LoginActivity : AppCompatActivity(), LoginResultCallback {
     private lateinit var connectivityObserver: ConnectivityObserver
     private var networkState: ConnectivityObserver.NetworkState? = null
 
+    private lateinit var preferenceDataStoreHelper: PreferenceDataStoreHelper
+
     override fun onSuccess(loginResponse: com.example.abe.data.network.LoginResponse) {
         println("Login successful: $loginResponse")
 
-        val sharedPref =
-            getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-        with(sharedPref.edit()) {
-            putString("login_token", loginResponse.token)
-            putString("user", email)
-            apply()
+        lifecycleScope.launch {
+            preferenceDataStoreHelper.putPreference(TOKEN, loginResponse.token)
+            preferenceDataStoreHelper.putPreference(USER, email)
+            val intent = Intent(this@LoginActivity, MainActivity::class.java)
+            startActivity(intent)
+            finish()
         }
 
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-        finish()
     }
 
     override fun onFailure(errorMessage: String) {
@@ -85,6 +86,8 @@ class LoginActivity : AppCompatActivity(), LoginResultCallback {
                 }
             }
         }.launchIn(lifecycleScope)
+
+        preferenceDataStoreHelper = PreferenceDataStoreHelper(applicationContext)
 
         binding.btnSignIn.setOnClickListener {
             setHelperText(binding.formEmailContainer, binding.emailInput, true)

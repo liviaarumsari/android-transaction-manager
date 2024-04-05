@@ -23,6 +23,9 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.abe.connection.ConnectivityObserver
 import com.example.abe.connection.NetworkConnectivityObserver
+import com.example.abe.data.local.PreferenceDataStoreConstants
+import com.example.abe.data.local.PreferenceDataStoreConstants.USER
+import com.example.abe.data.local.PreferenceDataStoreHelper
 import com.example.abe.databinding.ActivityMainBinding
 import com.example.abe.services.AuthService
 import com.example.abe.types.FragmentListener
@@ -73,6 +76,10 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
                 }
 
                 "EXPIRED_TOKEN" -> {
+                    lifecycleScope.launch {
+                        preferenceDataStoreHelper.putPreference(PreferenceDataStoreConstants.TOKEN,"")
+                        preferenceDataStoreHelper.putPreference(PreferenceDataStoreConstants.USER,"")
+                    }
                     val loginIntent = Intent(context, LoginActivity::class.java)
                     startActivity(loginIntent)
                     this@MainActivity.finish()
@@ -81,8 +88,12 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         }
     }
 
+    lateinit var preferenceDataStoreHelper: PreferenceDataStoreHelper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        preferenceDataStoreHelper = PreferenceDataStoreHelper(applicationContext)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -109,9 +120,6 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
 
         LocalBroadcastManager.getInstance(this).registerReceiver(br, filter)
 
-        val serviceIntent = Intent(this, AuthService::class.java)
-        startService(serviceIntent)
-
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
         connectivityObserver.observe().onEach {
             networkState = it
@@ -129,11 +137,13 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
             }
         }.launchIn(lifecycleScope)
 
-        val sharedPref = getSharedPreferences(
-            getString(R.string.preference_file_key),
-            Context.MODE_PRIVATE
-        )
-        user = sharedPref.getString("user", "").toString()
+
+        lifecycleScope.launch {
+            user =  preferenceDataStoreHelper.getFirstPreference(USER,"")
+        }
+        val serviceIntent = Intent(this@MainActivity, AuthService::class.java)
+        startService(serviceIntent)
+
     }
 
     fun getNetworkState(): ConnectivityObserver.NetworkState {
