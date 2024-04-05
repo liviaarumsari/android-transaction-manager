@@ -121,9 +121,7 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
                     builder
                         .setMessage("We are having trouble connecting you to the internet")
                         .setTitle("No Connection")
-                        .setPositiveButton("OK") { dialog, which ->
-                            // Do something.
-                        }
+                        .setPositiveButton("OK") { _, _ ->}
 
                     val dialog: AlertDialog = builder.create()
                     dialog.show()
@@ -136,6 +134,10 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
             Context.MODE_PRIVATE
         )
         user = sharedPref.getString("user", "").toString()
+    }
+
+    fun getNetworkState(): ConnectivityObserver.NetworkState {
+        return networkState
     }
 
     override fun onIntentReceived(action: String, info: String?) {
