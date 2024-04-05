@@ -12,7 +12,6 @@ import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,14 +25,18 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.abe.ABEApplication
+import com.example.abe.MainActivity
 import com.example.abe.R
+import com.example.abe.data.local.PreferenceDataStoreConstants
 import com.example.abe.databinding.FragmentFormTransactionBinding
 import com.example.abe.utils.isNumericValid
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 class FormTransaction : Fragment() {
@@ -94,10 +97,10 @@ class FormTransaction : Fragment() {
 
         getLocation()
 
-        val sharedPref = requireActivity().getSharedPreferences(
-            getString(R.string.preference_file_key), Context.MODE_PRIVATE
-        )
-        user = sharedPref.getString("user", "").toString()
+        lifecycleScope.launch {
+            user =  (activity as MainActivity).preferenceDataStoreHelper.getFirstPreference(
+                PreferenceDataStoreConstants.USER,"")
+        }
 
         if (arguments != null) {
             val args = Bundle(arguments)

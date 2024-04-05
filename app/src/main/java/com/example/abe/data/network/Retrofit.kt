@@ -1,9 +1,6 @@
 package com.example.abe.data.network
 
-import android.content.Context
 import android.util.Log
-import com.example.abe.R
-import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -90,10 +87,9 @@ class Retrofit {
         })
     }
 
-    fun upload(context: Context, file: File, callback: UploadResultCallback) {
+    fun upload(token: String, file: File, callback: UploadResultCallback) {
         val scannerService = retrofit.create(ScannerService::class.java)
-        val sharedPreferences = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-        val authHeader = "Bearer " + sharedPreferences.getString("login_token", "")
+        val authHeader = "Bearer $token"
 
         // Determine the MIME type of the file
         val mimeType = URLConnection.guessContentTypeFromName(file.name)

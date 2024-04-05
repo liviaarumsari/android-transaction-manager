@@ -33,16 +33,21 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.abe.ABEApplication
+import com.example.abe.MainActivity
 import com.example.abe.R
+import com.example.abe.data.local.PreferenceDataStoreConstants
 import com.example.abe.data.network.ItemsRoot
 import com.example.abe.data.network.Retrofit
 import com.example.abe.data.network.UploadResultCallback
 import com.example.abe.databinding.FragmentScanBinding
+import com.example.abe.utils.isConnected
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -130,11 +135,10 @@ class ScannerFragment : Fragment(), UploadResultCallback {
             startCamera()
         }
 
-        val sharedPref = activity?.getSharedPreferences(
-            getString(R.string.preference_file_key),
-            Context.MODE_PRIVATE
-        )
-        user = sharedPref?.getString("user", "").toString()
+        lifecycleScope.launch {
+            user =  (activity as MainActivity).preferenceDataStoreHelper.getFirstPreference(
+                PreferenceDataStoreConstants.USER,"")
+        }
 
         binding.captureButton.setOnClickListener {
             takePicture()
@@ -183,9 +187,11 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     }
 
     private fun attemptUpload(imageFile: File) {
-        val retrofit = Retrofit()
-        val context = requireContext()
-        retrofit.upload(context, imageFile, this)
+        lifecycleScope.launch {
+            val retrofit = Retrofit()
+            val token = (activity as MainActivity).preferenceDataStoreHelper.getFirstPreference(PreferenceDataStoreConstants.TOKEN, "")
+            retrofit.upload(token, imageFile, this@ScannerFragment)
+        }
     }
 
     private fun showPreviewDialog(imageUri: Uri) {
@@ -204,18 +210,30 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         val cancelButton = dialog.findViewById<Button>(R.id.cancel_button)
 
         confirmButton.setOnClickListener {
+            val activity = activity as MainActivity
+            if(!isConnected(activity.getNetworkState())) {
+                dialog.dismiss()
+                binding.scanLayout.visibility = View.GONE
+                binding.noNetworkLayout.visibility = View.VISIBLE
+            } else {
             val filePath = imageUri.path
             if (filePath != null) {
                 val imageFile = File(filePath)
                 attemptUpload(imageFile)
 
                 val msg = "Uploading photo, please wait"
-                Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
 
                 dialog.dismiss()
             } else {
                 dialog.dismiss()
             }
+            }
+        }
+
+        binding.btnTryAgain.setOnClickListener {
+            binding.noNetworkLayout.visibility = View.GONE
+            binding.scanLayout.visibility = View.VISIBLE
         }
 
         cancelButton.setOnClickListener {

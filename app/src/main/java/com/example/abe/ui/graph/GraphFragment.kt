@@ -1,6 +1,5 @@
 package com.example.abe.ui.graph
 
-import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,7 +9,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.abe.ABEApplication
+import com.example.abe.MainActivity
 import com.example.abe.R
+import com.example.abe.data.local.PreferenceDataStoreConstants
 import com.example.abe.databinding.FragmentGraphBinding
 import com.example.abe.domain.FormatCurrencyUseCase
 import com.github.mikephil.charting.data.PieData
@@ -36,16 +37,16 @@ class GraphFragment : Fragment() {
     ): View {
         _binding = FragmentGraphBinding.inflate(inflater, container, false)
 
-        drawGraph()
+        lifecycleScope.launch {
+            val user =  (activity as MainActivity).preferenceDataStoreHelper.getFirstPreference(
+                PreferenceDataStoreConstants.USER,"")
+            drawGraph(user)
+        }
+
         return binding.root
     }
 
-    private fun drawGraph() = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-        val sharedPref = requireActivity().getSharedPreferences(
-            getString(R.string.preference_file_key),
-            Context.MODE_PRIVATE
-        )
-        val user = sharedPref.getString("user", "").toString()
+    private fun drawGraph(user: String) = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
         val expenses = viewModel.getExpenses(user).toDouble()
         val income = viewModel.getIncome(user).toDouble()
 
