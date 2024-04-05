@@ -50,11 +50,11 @@ class LoginActivity : AppCompatActivity(), LoginResultCallback {
         lifecycleScope.launch {
             preferenceDataStoreHelper.putPreference(TOKEN, loginResponse.token)
             preferenceDataStoreHelper.putPreference(USER, email)
+            val intent = Intent(this@LoginActivity, MainActivity::class.java)
+            startActivity(intent)
+            finish()
         }
 
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-        finish()
     }
 
     override fun onFailure(errorMessage: String) {

@@ -23,6 +23,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.abe.connection.ConnectivityObserver
 import com.example.abe.connection.NetworkConnectivityObserver
+import com.example.abe.data.local.PreferenceDataStoreConstants
 import com.example.abe.data.local.PreferenceDataStoreConstants.USER
 import com.example.abe.data.local.PreferenceDataStoreHelper
 import com.example.abe.databinding.ActivityMainBinding
@@ -75,6 +76,10 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
                 }
 
                 "EXPIRED_TOKEN" -> {
+                    lifecycleScope.launch {
+                        preferenceDataStoreHelper.putPreference(PreferenceDataStoreConstants.TOKEN,"")
+                        preferenceDataStoreHelper.putPreference(PreferenceDataStoreConstants.USER,"")
+                    }
                     val loginIntent = Intent(context, LoginActivity::class.java)
                     startActivity(loginIntent)
                     this@MainActivity.finish()
@@ -136,9 +141,9 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         lifecycleScope.launch {
             user =  preferenceDataStoreHelper.getFirstPreference(USER,"")
         }
-
-        val serviceIntent = Intent(this, AuthService::class.java)
+        val serviceIntent = Intent(this@MainActivity, AuthService::class.java)
         startService(serviceIntent)
+
     }
 
     fun getNetworkState(): ConnectivityObserver.NetworkState {
