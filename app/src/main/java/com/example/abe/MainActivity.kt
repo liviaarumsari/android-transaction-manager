@@ -67,13 +67,16 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
                     val bundle = Bundle().apply {
                         putInt("random_amount", randomAmount)
                     }
-                    navController.navigate(
-                        R.id.action_navigation_settings_to_navigation_transactions
-                    )
-                    navController.navigate(
-                        R.id.action_navigation_transactions_to_navigation_form_transaction,
-                        bundle
-                    )
+
+                    if (navController.currentDestination?.id == R.id.navigation_settings)
+                        navController.navigate(
+                            R.id.action_navigation_settings_to_navigation_transactions
+                        )
+                    if (navController.currentDestination?.id == R.id.navigation_transactions)
+                        navController.navigate(
+                            R.id.action_navigation_transactions_to_navigation_form_transaction,
+                            bundle
+                        )
                 }
 
                 "EXPIRED_TOKEN" -> {
