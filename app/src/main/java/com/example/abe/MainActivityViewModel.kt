@@ -48,7 +48,7 @@ class MainActivityViewModel(private val transactionRepository: TransactionReposi
 
     suspend fun createEmailIntent(context: Context, user: String): Intent {
         clearExportCacheFiles(context)
-        val newFile = File(context.externalCacheDir, if (newExcelFormat) "export.xlsx" else "export.xls")
+        val newFile = File(context.cacheDir, if (newExcelFormat) "export.xlsx" else "export.xls")
         val contentUri =
             FileProvider.getUriForFile(context, "com.example.abe.fileprovider", newFile)
         exportTransactionsToExcel(context.contentResolver, contentUri, user)
@@ -66,7 +66,7 @@ class MainActivityViewModel(private val transactionRepository: TransactionReposi
     }
 
     fun clearExportCacheFiles(context: Context) {
-        context.externalCacheDir?.apply {
+        context.cacheDir?.apply {
             val files = listFiles() ?: emptyArray()
             files.forEach { file ->
                 if (file.name.startsWith("export"))
