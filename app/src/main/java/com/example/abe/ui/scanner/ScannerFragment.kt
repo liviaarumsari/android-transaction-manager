@@ -64,12 +64,13 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var latitude = 0.0
     private var longitude = 0.0
-    private var useDefaultLocation = false
 
     private val DEFAULT_LATITUDE = -6.892382
     private val DEFAULT_LONGINTUDE = 107.608352
 
     private lateinit var user: String
+
+    private var isProcessingPhoto = false
 
     private val viewModel: ScannerViewModel by viewModels {
         ScannerViewModelFactory((activity?.application as ABEApplication).repository)
@@ -118,6 +119,7 @@ class ScannerFragment : Fragment(), UploadResultCallback {
                 } else {
                     val msg = "Failed to fetch image from gallery"
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                    isProcessingPhoto = false
                 }
             }
         }
@@ -137,12 +139,21 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         }
 
         lifecycleScope.launch {
-            user =  (activity as MainActivity).preferenceDataStoreHelper.getFirstPreference(
-                PreferenceDataStoreConstants.USER,"")
+            user = (activity as MainActivity).preferenceDataStoreHelper.getFirstPreference(
+                PreferenceDataStoreConstants.USER, ""
+            )
         }
 
         binding.captureButton.setOnClickListener {
-            takePicture()
+            if (cameraPermissionGranted()) {
+                takePicture()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Please allow camera to take photos",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
 
         binding.galleryPreviewButton.setOnClickListener {
@@ -190,13 +201,17 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     private fun attemptUpload(imageFile: File) {
         lifecycleScope.launch {
             val retrofit = Retrofit()
-            val token = (activity as MainActivity).preferenceDataStoreHelper.getFirstPreference(PreferenceDataStoreConstants.TOKEN, "")
+            val token = (activity as MainActivity).preferenceDataStoreHelper.getFirstPreference(
+                PreferenceDataStoreConstants.TOKEN,
+                ""
+            )
             retrofit.upload(token, imageFile, this@ScannerFragment)
         }
     }
 
     private fun showPreviewDialog(imageUri: Uri) {
         val dialog = Dialog(requireContext()).apply {
+            setCancelable(false)
             setContentView(R.layout.dialog_image_preview)
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
@@ -212,23 +227,25 @@ class ScannerFragment : Fragment(), UploadResultCallback {
 
         confirmButton.setOnClickListener {
             val activity = activity as MainActivity
-            if(!isConnected(activity.getNetworkState())) {
+            if (!isConnected(activity.getNetworkState())) {
                 dialog.dismiss()
                 binding.scanLayout.visibility = View.GONE
                 binding.noNetworkLayout.visibility = View.VISIBLE
+                isProcessingPhoto = false
             } else {
-            val filePath = imageUri.path
-            if (filePath != null) {
-                val imageFile = File(filePath)
-                attemptUpload(imageFile)
+                val filePath = imageUri.path
+                if (filePath != null) {
+                    val imageFile = File(filePath)
+                    attemptUpload(imageFile)
 
-                val msg = "Uploading photo, please wait"
-                Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+                    val msg = "Uploading photo, please wait"
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
 
-                dialog.dismiss()
-            } else {
-                dialog.dismiss()
-            }
+                    dialog.dismiss()
+                } else {
+                    isProcessingPhoto = false
+                    dialog.dismiss()
+                }
             }
         }
 
@@ -239,12 +256,22 @@ class ScannerFragment : Fragment(), UploadResultCallback {
 
         cancelButton.setOnClickListener {
             dialog.dismiss()
+            isProcessingPhoto = false
         }
 
         dialog.show()
     }
 
     private fun takePicture() {
+        if (isProcessingPhoto) {
+            Toast.makeText(
+                requireContext(),
+                "Unable to take picture, processing previous image",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
         val imageCapture = imageCapture
 
         val photoFile = File(
@@ -254,6 +281,7 @@ class ScannerFragment : Fragment(), UploadResultCallback {
 
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
+        isProcessingPhoto = true
         imageCapture.takePicture(
             outputOptions,
             ContextCompat.getMainExecutor(requireContext()),
@@ -261,6 +289,7 @@ class ScannerFragment : Fragment(), UploadResultCallback {
                 override fun onError(exc: ImageCaptureException) {
                     Toast.makeText(requireContext(), "Photo capture failed", Toast.LENGTH_SHORT)
                         .show()
+                    isProcessingPhoto = false
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
@@ -274,7 +303,6 @@ class ScannerFragment : Fragment(), UploadResultCallback {
     private fun setLocationAsDefault() {
         latitude = DEFAULT_LATITUDE
         longitude = DEFAULT_LONGINTUDE
-        useDefaultLocation = true
     }
 
     @SuppressLint("MissingPermission")
@@ -295,6 +323,7 @@ class ScannerFragment : Fragment(), UploadResultCallback {
                 }
         } else {
             setLocationAsDefault()
+            insertItems()
         }
     }
 
@@ -351,7 +380,7 @@ class ScannerFragment : Fragment(), UploadResultCallback {
         val locationList: MutableList<Address> =
             geocoder.getFromLocation(latitude, longitude, 1) ?: mutableListOf<Address>()
         val location =
-            if (!useDefaultLocation && locationList.size > 0) (locationList[0].getAddressLine(0)) else "Unknown location"
+            if (locationList.size > 0) (locationList[0].getAddressLine(0)) else "Unknown location"
 
         uploadResponse?.items?.items?.forEach { item ->
             viewModel.insertTransaction(user, item, latitude, longitude, location)
@@ -361,16 +390,28 @@ class ScannerFragment : Fragment(), UploadResultCallback {
 
         findNavController().navigate(R.id.action_navigation_scanner_to_navigation_transactions)
         uploadResponse = null
+        isProcessingPhoto = false
     }
 
     override fun onFailure(errorMessage: String) {
         Toast.makeText(requireContext(), "Upload failed", Toast.LENGTH_SHORT).show()
         Log.e("ABE-PHO", errorMessage)
+        isProcessingPhoto = false
     }
 
     private fun openGallery() {
+        if (isProcessingPhoto) {
+            Toast.makeText(
+                requireContext(),
+                "Unable choose image, processing previous image",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
+        isProcessingPhoto = true
         openGalleryLauncher.launch(intent)
     }
 

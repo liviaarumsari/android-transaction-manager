@@ -1,6 +1,7 @@
 package com.example.abe.ui.login
 
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Patterns
 import android.view.View
@@ -65,6 +66,7 @@ class LoginActivity : AppCompatActivity(), LoginResultCallback {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
 
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         supportActionBar?.hide()
 
         val view = binding.root

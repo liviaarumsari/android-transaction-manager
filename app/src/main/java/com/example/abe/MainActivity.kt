@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -93,6 +94,7 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
         preferenceDataStoreHelper = PreferenceDataStoreHelper(applicationContext)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -107,6 +109,7 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
                 R.id.navigation_transactions,
                 R.id.navigation_graph,
                 R.id.navigation_settings,
+                R.id.navigation_twibbon,
                 R.id.navigation_scan
             )
         )
@@ -116,6 +119,9 @@ class MainActivity : AppCompatActivity(), ExportAlertDialogFragment.ExportAlertD
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == R.id.navigation_form_transaction) navView.visibility = View.GONE
             else navView.visibility = View.VISIBLE
+
+            if (destination.id == R.id.navigation_graph) requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+            else requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(br, filter)

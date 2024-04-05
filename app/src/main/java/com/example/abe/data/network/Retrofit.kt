@@ -126,7 +126,6 @@ class Retrofit {
             }
 
             override fun onFailure(call: Call<ItemsRoot>, t: Throwable) {
-                Log.d("ABE-PHO", "Failed to send request: " + t.message)
                 callback.onFailure("Failed to send photo")
             }
         })
